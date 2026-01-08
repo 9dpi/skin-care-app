@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gương Thần Soi Da ✨ (AI)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pacifico&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&display=swap"
         rel="stylesheet">
     <style>
         :root {
@@ -328,46 +328,51 @@
             justify-content: center;
         }
 
+        /* RECOMMENDATION CARD PREMIUM */
         .recommendation {
-            background: #fff;
-            border: 2px dashed var(--primary);
-            padding: 20px;
+            background: linear-gradient(to bottom, #fff, #fff5f5);
+            border: 2px solid #ffdde1;
+            padding: 25px 15px;
             border-radius: 25px;
-            margin-top: 20px;
+            margin-top: 25px;
             text-align: center;
             position: relative;
-            overflow: hidden;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: visible;
+            /* Cho phép tag nổi lên trên */
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.15);
         }
 
         .rec-tag {
             position: absolute;
-            top: 0;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--primary);
+            background: linear-gradient(90deg, #ff9a9e, #ff6b6b);
             color: white;
-            padding: 5px 15px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
+            padding: 8px 25px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            white-space: nowrap;
         }
 
         .buy-btn {
-            display: inline-block;
+            display: block;
             margin-top: 15px;
-            padding: 12px 30px;
-            background: var(--accent);
+            padding: 15px 10px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
             color: white;
             text-decoration: none;
-            border-radius: 15px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
-            animation: pulse 2s infinite;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+            animation: pulse 1.5s infinite;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
         }
 
         @keyframes pulse {
@@ -376,7 +381,7 @@
             }
 
             50% {
-                transform: scale(1.05);
+                transform: scale(1.02);
             }
 
             100% {
@@ -385,12 +390,27 @@
         }
 
         .rec-img {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            max-height: 200px;
             object-fit: cover;
             border-radius: 15px;
-            margin-bottom: 10px;
-            border: 2px solid #eee;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .rec-title {
+            font-size: 1.3rem;
+            color: #d63031;
+            font-weight: 800;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .rec-desc {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
 
         .store-btn {
@@ -433,7 +453,6 @@
                 <div id="scan-line" class="scanner-line"></div>
             </div>
 
-            <!-- NEW PROGRESS BAR LOCATION -->
             <div class="progress-container" id="progress-area">
                 <div class="progress-track">
                     <div class="progress-fill" id="progress-fill"></div>
@@ -506,7 +525,6 @@
                     canvas.height = video.videoHeight;
                 };
 
-                // Fetch data, nếu lỗi thì dùng list rỗng
                 try {
                     const res = await fetch('products.json');
                     if (res.ok) productList = await res.json();
@@ -540,7 +558,7 @@
 
         function startScan() {
             btn.style.display = 'none';
-            statusText.style.display = 'none'; // Ẩn status cũ để dùng progress bar
+            statusText.style.display = 'none';
             scanLine.style.display = 'block';
             progressArea.style.display = 'block';
 
@@ -572,7 +590,7 @@
             scanLine.style.display = 'none';
             progressArea.style.display = 'none';
             statusText.style.display = 'block';
-            statusText.innerText = "🎉 Đã có kết quả phân tích!";
+            statusText.innerText = "✨ Đã tìm thấy chân ái của bạn! ✨";
             results.style.display = 'block';
 
             const toneScore = Math.min(Math.round((brightness / 255) * 100), 100);
@@ -595,39 +613,46 @@
             if (toneScore < 40 && skinIssue === "Normal") skinIssue = "Dry";
             document.getElementById('red-msg').innerText = redMsg;
 
-            // FIX: Đảm bảo luôn có sản phẩm để hiển thị
             let bestMatch = null;
             if (productList && productList.length > 0) {
-                // Thử tìm theo skinType
                 bestMatch = productList.find(p => p.skinType && p.skinType.includes(skinIssue));
-
-                // Nếu không thấy, lấy đại cái đầu tiên
                 if (!bestMatch) bestMatch = productList[Math.floor(Math.random() * productList.length)];
             }
 
-            // Fallback cuối cùng nếu list rỗng
+            // Fallback Image Premium từ Unsplash
+            const premiumFallbackImg = "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?q=80&w=600&auto=format&fit=crop";
+
+            // Fallback Product
             if (!bestMatch) {
                 bestMatch = {
-                    name: "Bộ phục hồi da CuongVQ",
-                    advice: "Sản phẩm phục hồi toàn diện cho mọi loại da.",
+                    name: "Combo Phục Hồi & Căng Bóng Da",
+                    advice: "Giải pháp toàn diện giúp da bạn sáng khỏe, hết lo âu.",
                     link: "https://www.tiktok.com/@cuongvqart",
-                    image: "https://via.placeholder.com/150",
+                    image: premiumFallbackImg,
                     original_link: "https://www.tiktok.com/@cuongvqart"
                 };
             }
+
+            // Logic thay ảnh placeholder xấu xí bằng ảnh đẹp
+            let displayImg = bestMatch.image;
+            if (!displayImg || displayImg.includes("via.placeholder")) displayImg = premiumFallbackImg;
 
             const cleanLink = bestMatch.link || bestMatch.original_link || "#";
 
             document.getElementById('rec-content').innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    <img src="${bestMatch.image || 'https://via.placeholder.com/100'}" class="rec-img">
-                    <h3 style="color:#ff6b6b; font-size:1.1rem; margin-bottom:5px; text-align:center;">${bestMatch.name}</h3>
-                    <p style="font-size:0.9rem; font-style:italic; color:#888; margin-bottom:10px; text-align:center;">
-                        AI phát hiện <b>${skinIssue}</b>: "${bestMatch.advice || 'Khuyên dùng sản phẩm này'}"
-                    </p>
-                    <a href="${cleanLink}" target="_blank" class="buy-btn">MUA NGAY TRÊN TIKTOK</a>
+                    <img src="${displayImg}" class="rec-img">
+                    <div class="rec-title">${bestMatch.name}</div>
+                    <div class="rec-desc">
+                        <span>💡 AI Phân tích:</span> <b>${skinIssue}</b><br>
+                        <i>"${bestMatch.advice || 'Sản phẩm này cực hợp để cải thiện tình trạng da hiện tại của bạn.'}"</i>
+                    </div>
+                    <a href="${cleanLink}" target="_blank" class="buy-btn">🔥 XEM CHI TIẾT & MUA NGAY 🔥</a>
                 </div>
             `;
+
+            // Update Tag Text
+            document.querySelector('.rec-tag').innerText = "🏆 GIẢI PHÁP CHUYÊN GIA KHUYÊN DÙNG";
 
             results.scrollIntoView({ behavior: 'smooth' });
         }
