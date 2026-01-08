@@ -1,0 +1,8 @@
+node_modules/
+videos_raw/
+videos_processed/
+*.lock
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini

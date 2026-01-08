@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Auto Post - Portable Dashboard</title>
+    <!-- External Fonts & Icons from CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --sidebar-bg: #111115;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.4);
+            --secondary: #3b82f6;
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: var(--transition);
+            margin-bottom: 8px;
+        }
+
+        .nav-item:hover {
+            background: var(--glass-bg);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 3rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 3rem;
+            background: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            color: var(--text-dim);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .btn.secondary {
+            background: var(--glass-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .video-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-thumbnail {
+            height: 180px;
+            background: #111;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .status-badge.ready {
+            color: #10b981;
+        }
+
+        .status-badge.scheduled {
+            color: #3b82f6;
+        }
+
+        .video-info {
+            padding: 1.5rem;
+        }
+
+        .video-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: var(--primary);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 650px;
+            max-width: 95%;
+            background: #111115;
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Preview area */
+        .tiktok-preview {
+            background: #000;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1rem;
+        }
+
+        .preview-caption {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .preview-tags {
+            color: #3b82f6;
+            font-weight: 500;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Loader */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--glass-bg);
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes rotation {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-container {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 5rem;
+        }
+
+        /* Welcome Screen for Desktop */
+        .welcome-badge {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body class="dark-theme">
+    <div id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-rocket"></i>
+                <span>AutoPost AI</span>
+            </div>
+            <nav id="sidebar-nav">
+                <div class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Tất cả Video</span>
+                </div>
+                <div class="nav-item" data-tab="schedule">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Lịch đăng</span>
+                </div>
+                <div class="nav-item" data-tab="history">
+                    <i class="fas fa-history"></i>
+                    <span>Lịch sử đăng</span>
+                </div>
+            </nav>
+
+            <div class="automation-panel"
+                style="margin-top: 2rem; padding: 1.2rem; background: rgba(139, 92, 246, 0.1); border: 2px solid var(--primary); border-radius: 16px; box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);">
+                <h4
+                    style="font-size: 0.9rem; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <span><i class="fas fa-robot"></i> TRẠNG THÁI BOT</span>
+                    <span id="bot-status-dot"
+                        style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 10px #ef4444;"></span>
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
+                    <div id="bot-status-text" style="color: var(--text-dim); font-style: italic; margin-bottom: 5px;">
+                        Bot đang ngoại tuyến...</div>
+
+                    <button onclick="copyStartCommand()" class="btn primary"
+                        style="padding: 8px; font-size: 0.8rem; width: 100%; border-radius: 8px;">
+                        <i class="fas fa-play"></i> KÍCH HOẠT HỆ THỐNG
+                    </button>
+
+                    <button id="btn-manual-post" onclick="triggerManualPost()" class="btn secondary"
+                        style="padding: 8px; font-size: 0.8rem; width: 100%; border-radius: 8px; display: none;">
+                        <i class="fas fa-bolt"></i> CHẠY AUTO NGAY
+                    </button>
+                </div>
+                <div style="margin-top: 12px; font-size: 0.7rem; color: var(--text-dim); line-height: 1.4;">
+                    * Lưu ý: Cần giữ cửa sổ Terminal chạy lệnh <code>node automation_engine.js</code>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dim); text-align: center;">
+                v1.0.0 Portable Edition
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <header>
+                <div class="header-title">
+                    <span class="welcome-badge">ACTIVE SESSION</span>
+                    <h1>Hệ Thống Tự Động Đăng Video</h1>
+                    <p>Quản lý nội dung & Tối ưu hóa metadata</p>
+                </div>
+                <div class="header-actions">
+                    <button onclick="syncData()" class="btn secondary">
+                        <i class="fas fa-sync"></i> Đồng bộ Sheet
+                    </button>
+                    <button onclick="addNewVideo()" class="btn primary">
+                        <i class="fas fa-plus"></i> Thêm Video Mới
+                    </button>
+                </div>
+            </header>
+
+            <section class="video-grid" id="video-list">
+                <div class="loader-container">
+                    <div class="loader"></div>
+                    <p style="margin-top: 15px; color: var(--text-dim)">Đang tải danh sách video...</p>
+                </div>
+            </section>
+
+            <!-- Tải Video Section -->
+            <section class="download-section"
+                style="margin-top: 4rem; padding: 2.5rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(139, 92, 246, 0.1)); border-radius: 24px; border: 2px solid var(--primary); text-align: center;">
+                <h2
+                    style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 1.8rem;">
+                    <i class="fas fa-fire" style="color: #ff4d4d; font-size: 2.2rem;"></i> SĂN LÙNG VIDEO HOT TIỀM NĂNG
+                </h2>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Hệ thống sẽ tự động quét xu hướng TikTok trong
+                    ngách <b>"Mỹ phẩm & Làm đẹp"</b> để chọn ra 3 Video có lượt tương tác cao nhất hôm nay.</p>
+
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                    <button onclick="autoDiscoverVideos()" id="btn-discover" class="btn primary"
+                        style="padding: 18px 40px; font-size: 1.1rem; border-radius: 50px; box-shadow: 0 0 30px var(--primary-glow);">
+                        <i class="fas fa-search-dollar"></i> TỰ ĐỘNG SĂN 3 VIDEO HOT NHẤT
+                    </button>
+
+                    <div id="discover-status" style="font-size: 1rem; color: var(--text-main); min-height: 24px;"></div>
+                </div>
+
+                <div
+                    style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <span style="font-size: 0.8rem; color: var(--text-dim);">Hoặc dán link thủ công:</span>
+                    <input type="text" id="tiktok-url" placeholder="Dán link TikTok..."
+                        style="width: 300px; padding: 10px; font-size: 0.8rem;">
+                    <button onclick="downloadTikTok()" id="btn-download" class="btn secondary"
+                        style="padding: 10px 20px; font-size: 0.8rem;">Tải ngay</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cấu hình Metadata & Lịch đăng</h2>
+                <button onclick="closeModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Tiêu đề bài đăng (Title)</label>
+                    <div class="input-with-action">
+                        <input type="text" id="edit-title" oninput="updatePreview()"
+                            placeholder="Nhập tiêu đề thu hút...">
+                        <button onclick="suggestAI('title')" class="btn-ai small">
+                            <i class="fas fa-magic"></i> Tạo tiêu đề AI
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mô tả chi tiết (Description)</label>
+                    <div class="input-with-action">
+                        <textarea id="edit-desc" rows="3" oninput="updatePreview()"
+                            placeholder="Mô tả sẽ hiển thị trong phần chi tiết..."></textarea>
+                        <button onclick="suggestAI('desc')" class="btn-ai small">
+                            <i class="fas fa-magic"></i> Viết mô tả AI
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Hashtag liên quan</label>
+                    <div class="input-with-action">
+                        <input type="text" id="edit-hashtags" oninput="updatePreview()"
+                            placeholder="Ví dụ: #beauty #skincare #makeup">
+                        <button onclick="suggestAI('tags')" class="btn-ai small">
+                            <i class="fas fa-magic"></i> Gợi ý Hashtag
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group"
+                    style="padding: 1.5rem; background: rgba(139, 92, 246, 0.05); border-radius: 16px; border: 1px dashed var(--primary);">
+                    <label
+                        style="color: var(--primary); font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-shield-virus"></i> Cấu hình Xử lý Video (Chống Re-post)
+                    </label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <label class="checkbox-container"
+                            style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="opt-mirror" checked
+                                style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <span>Lật gương (Mirror)</span>
+                        </label>
+                        <label class="checkbox-container"
+                            style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="opt-audio" checked
+                                style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <span>Chèn âm thanh (1-2s)</span>
+                        </label>
+                        <label class="checkbox-container"
+                            style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="opt-speed"
+                                style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <span>Thay đổi tốc độ (±2%)</span>
+                        </label>
+                        <label class="checkbox-container"
+                            style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="opt-crop"
+                                style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <span>Zoom nhẹ (Crop 5%)</span>
+                        </label>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 10px;">
+                        * Các tùy chọn này giúp thay đổi MD5 và cấu trúc pixel để tránh bị quét nội dung trùng lặp.
+                    </p>
+                </div>
+
+                <div class="form-group"
+                    style="margin-top: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.05); border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                    <label
+                        style="color: var(--secondary); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-clock"></i> Thời gian đăng bài
+                    </label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="post-time" value="now" checked
+                                style="accent-color: var(--secondary);">
+                            <span>Đăng ngay</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="post-time" value="schedule"
+                                style="accent-color: var(--secondary);">
+                            <span>Hẹn giờ (Cách 2 tiếng)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="post-time" value="custom" style="accent-color: var(--secondary);">
+                            <span>Tùy chỉnh</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="tiktok-preview">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <div
+                            style="width: 32px; height: 32px; background: linear-gradient(135deg, #ec4899, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: white;">
+                            AI</div>
+                        <span style="font-weight: 700; font-size: 0.9rem;">@autopost_ai</span>
+                    </div>
+                    <div class="preview-caption">
+                        <span id="preview-text" style="color: #fff; font-weight: 600;">Tiêu đề video hiển thị ở
+                            đây...</span>
+                        <p id="preview-desc" style="color: #ccc; font-size: 0.8rem; margin: 4px 0;">Mô tả chi tiết...
+                        </p>
+                        <div id="preview-tags" class="preview-tags" style="margin-top: 5px;">#hashtag</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn secondary">Hủy bỏ</button>
+                <button onclick="saveAndPost()" class="btn primary">Copy Nội Dung & Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Style overrides for new small AI buttons
+        const style = document.createElement('style');
+        style.textContent = `
+            .input-with-action { position: relative; display: flex; flex-direction: column; gap: 8px; }
+            .btn-ai.small { 
+                align-self: flex-end; 
+                padding: 6px 12px; 
+                font-size: 0.8rem; 
+                margin-top: 5px;
+                border-radius: 8px;
+            }
+            .preview-caption p { line-height: 1.4; }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize
+        window.onload = () => {
+            syncWithBotFiles();
+            setInterval(syncWithBotFiles, 5000); // Tự động cập nhật mỗi 5 giây
+        };
+
+        function syncWithBotFiles() {
+            fetch('http://localhost:3000/files')
+                .then(res => res.json())
+                .then(data => {
+                    videos = []; // Xóa dữ liệu cũ
+
+                    // Thêm các file đang chờ (raw)
+                    data.raw.forEach(filename => {
+                        videos.push({
+                            id: filename,
+                            title: filename.includes('auto_trend_1') ? 'Bí quyết dưỡng da căng bóng' :
+                                (filename.includes('auto_trend_2') ? 'Review 5 thỏi son lì cực mướt' :
+                                    (filename.includes('auto_trend_3') ? 'Học makeup tone Thái cực xinh' : filename)),
+                            desc: 'Video Hot TikTok vừa được hệ thống tự động tải về.',
+                            tags: '#trending #beauty',
+                            status: 'ready',
+                            thumb: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800'
+                        });
+                    });
+
+                    // Thêm các file đã xử lý
+                    data.processed.forEach(filename => {
+                        videos.push({
+                            id: filename,
+                            title: `[XUẤT BẢN] ${filename.replace('processed_', '')}`,
+                            desc: 'Video đã được lách bản quyền và sẵn sàng đăng.',
+                            tags: '#trending #viral',
+                            status: 'scheduled',
+                            thumb: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=800'
+                        });
+                    });
+
+                    renderVideos();
+                })
+                .catch(err => {
+                    // Nếu bot chưa bật, hiển thị dữ liệu demo
+                    if (videos.length === 0) {
+                        videos = [
+                            { id: 1, title: 'Bí quyết dưỡng da căng bóng', desc: 'Demo Mode: Hãy bật Bot Terminal để lấy file thật!', tags: '#skincare #beauty', status: 'ready', thumb: 'https://images.unsplash.com/photo-1596462502278-27bfdc4033c8?w=800' }
+                        ];
+                        renderVideos();
+                    }
+                });
+        }
+
+        let currentEditingId = null;
+
+        function renderVideos() {
+            const list = document.getElementById('video-list');
+            list.innerHTML = '';
+
+            videos.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <div class="video-thumbnail">
+                        <img src="${v.thumb}">
+                        <span class="status-badge ${v.status}">${v.status === 'ready' ? 'Sẵn sàng' : 'Đã đăng'}</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>${v.title}</h3>
+                        <div class="video-tags">
+                            ${v.tags.split(' ').map(t => `<span class="tag">${t}</span>`).join('')}
+                        </div>
+                        <button onclick="openEdit('${v.id}')" class="btn primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+                            <i class="fas fa-copy"></i> Lấy Nội Dung AI
+                        </button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function openEdit(id) {
+            const video = videos.find(v => v.id === id);
+            if (!video) return;
+
+            currentEditingId = id;
+            document.getElementById('edit-title').value = video.title;
+
+            // Fetch AI generated info from server
+            fetch(`http://localhost:3000/get-info?file=${encodeURIComponent(id)}`)
+                .then(res => res.json())
+                .then(data => {
+                    const content = data.content;
+                    if (content.includes('TIÊU ĐỀ:')) {
+                        const titleMatch = content.match(/TIÊU ĐỀ: (.*)/);
+                        const descMatch = content.match(/MÔ TẢ:\n([\s\S]*)/);
+
+                        if (titleMatch) document.getElementById('edit-title').value = titleMatch[1];
+                        if (descMatch) document.getElementById('edit-desc').value = descMatch[1];
+                        document.getElementById('edit-hashtags').value = ""; // Already in desc
+                    } else {
+                        document.getElementById('edit-desc').value = video.desc;
+                        document.getElementById('edit-hashtags').value = video.tags;
+                    }
+                    updatePreview();
+                });
+
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+
+        function updatePreview() {
+            const title = document.getElementById('edit-title').value;
+            const desc = document.getElementById('edit-desc').value;
+            const hashtags = document.getElementById('edit-hashtags').value;
+
+            document.getElementById('preview-text').innerText = title || 'Tiêu đề video hiển thị ở đây...';
+            document.getElementById('preview-desc').innerText = desc || 'Mô tả chi tiết sẽ hiển thị ở đây...';
+            document.getElementById('preview-tags').innerText = hashtags || '#hashtag';
+        }
+
+        function suggestAI(type) {
+            const titleVal = document.getElementById('edit-title').value;
+            const eventTarget = event.currentTarget;
+            const originalHTML = eventTarget.innerHTML;
+
+            eventTarget.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI đang nghĩ...';
+            eventTarget.disabled = true;
+
+            setTimeout(() => {
+                const lowTitle = titleVal.toLowerCase();
+
+                if (type === 'title') {
+                    const titles = [
+                        `Mẹo ${titleVal} cực hiệu quả cho người mới`,
+                        `Tại sao bạn nên thử ${titleVal} ngay hôm nay?`,
+                        `Review chân thực: ${titleVal} có thực sự tốt?`,
+                        `Sự thật về ${titleVal} mà ít ai biết`
+                    ];
+                    document.getElementById('edit-title').value = titles[Math.floor(Math.random() * titles.length)];
+                }
+                else if (type === 'desc') {
+                    document.getElementById('edit-desc').value = `Video này sẽ giúp bạn hiểu rõ hơn về ${titleVal}. Đừng quên xem đến cuối để nhận bí kíp độc quyền nhé! Chúc bạn có một ngày làm đẹp thật vui vẻ ✨`;
+                }
+                else if (type === 'tags') {
+                    let tags = ['#trending', '#fyp', '#viral'];
+                    if (lowTitle.includes('da') || lowTitle.includes('skin')) tags.push('#skincare', '#lamdep', '#tips');
+                    if (lowTitle.includes('makeup') || lowTitle.includes('trang điểm')) tags.push('#makeup', '#beautyhacks', '#xuhuong');
+                    if (lowTitle.includes('review')) tags.push('#reviewlamdep', '#reviewmypham', '#muataitiktoksop');
+                    document.getElementById('edit-hashtags').value = tags.join(' ');
+                }
+
+                updatePreview();
+                eventTarget.innerHTML = originalHTML;
+                eventTarget.disabled = false;
+
+                // Visual highlight
+                const targetInputId = type === 'title' ? 'edit-title' : (type === 'desc' ? 'edit-desc' : 'edit-hashtags');
+                const targetEl = document.getElementById(targetInputId);
+                targetEl.style.borderColor = '#8b5cf6';
+                targetEl.style.boxShadow = '0 0 10px rgba(139, 92, 246, 0.3)';
+                setTimeout(() => {
+                    targetEl.style.borderColor = '';
+                    targetEl.style.boxShadow = '';
+                }, 1000);
+
+            }, 800);
+        }
+
+        function saveAndPost() {
+            // Copy caption to clipboard automatically for manual upload
+            const title = document.getElementById('edit-title').value;
+            const desc = document.getElementById('edit-desc').value;
+            const hashtags = document.getElementById('edit-hashtags').value;
+            const fullText = `${title}\n\n${desc}\n${hashtags}`;
+
+            navigator.clipboard.writeText(fullText).then(() => {
+                alert('📋 ĐÃ COPY NỘI DUNG AI!\n\nBây giờ bạn chỉ cần:\n1. Mở folder "videos_processed"\n2. Kéo video vào TikTok\n3. Dán (Ctrl+V) nội dung vừa copy vào phần chú thích.');
+                closeModal();
+            });
+        }
+
+        // BOT INTEGRATION LOGIC
+        function checkBotStatus() {
+            fetch('http://localhost:3000/status')
+                .then(res => res.json())
+                .then(data => {
+                    const dot = document.getElementById('bot-status-dot');
+                    const text = document.getElementById('bot-status-text');
+                    const btnManual = document.getElementById('btn-manual-post');
+
+                    dot.style.background = '#10b981';
+                    dot.style.boxShadow = '0 0 10px #10b981';
+
+                    let statusHtml = `<span style="color: #10b981">● Trực tuyến</span><br>`;
+                    statusHtml += `<small style="color: ${data.hasFFmpeg ? '#10b981' : '#f59e0b'}">`;
+                    statusHtml += `${data.hasFFmpeg ? '🛡️ FFmpeg: Sẵn sàng' : '⚠️ FFmpeg: Chưa cài'} </small>`;
+
+                    text.innerHTML = statusHtml;
+                    btnManual.style.display = 'block';
+                })
+                .catch(err => {
+                    const dot = document.getElementById('bot-status-dot');
+                    const text = document.getElementById('bot-status-text');
+                    dot.style.background = '#ef4444';
+                    dot.style.boxShadow = '0 0 10px #ef4444';
+                    text.innerText = 'Bot đang ngoại tuyến...';
+                });
+        }
+
+        function triggerManualPost() {
+            fetch('http://localhost:3000/trigger')
+                .then(res => res.json())
+                .then(data => {
+                    alert('🔥 ' + data.message);
+                })
+                .catch(err => alert('❌ Lỗi: Không thể kết nối với Bot. Hãy chắc chắn bạn đã chạy lệnh Terminal!'));
+        }
+
+        function copyStartCommand() {
+            const cmd = 'node automation_engine.js';
+            navigator.clipboard.writeText(cmd).then(() => {
+                alert('📋 Đã copy lệnh: ' + cmd + '\nHãy dán vào Terminal và nhấn Enter để kích hoạt Bot!');
+            });
+        }
+
+        // Check status periodically
+        setInterval(checkBotStatus, 3000);
+        checkBotStatus(); // Initial check
+
+        function autoDiscoverVideos() {
+            const status = document.getElementById('discover-status');
+            const btn = document.getElementById('btn-discover');
+
+            status.innerHTML = '<i class="fas fa-radar fa-spin"></i> Đang quét xu hướng TikTok ngách Mỹ phẩm...';
+            btn.disabled = true;
+
+            fetch(`http://localhost:3000/discover`)
+                .then(res => res.json())
+                .then(data => {
+                    status.innerHTML = `<span style="color: #10b981"><i class="fas fa-fire"></i> Đã tìm thấy 3 video Hot! Đang thực hiện tải không logo...</span>`;
+
+                    data.videos.forEach(v => {
+                        videos.unshift({
+                            id: Date.now() + Math.random(),
+                            title: `SĂN LÙNG: ${v.title}`,
+                            desc: 'Video Hot TikTok vừa được hệ thống tự động tìm thấy.',
+                            tags: '#trending #beauty',
+                            status: 'ready',
+                            thumb: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800'
+                        });
+                    });
+
+                    setTimeout(() => {
+                        status.innerHTML = '✅ Hoàn tất! 3 video đã có mặt trong hàng đợi.';
+                        btn.disabled = false;
+                        renderVideos();
+                    }, 3000);
+                })
+                .catch(err => {
+                    status.innerHTML = '<span style="color: #ef4444">❌ Lỗi: Bot săn tìm đang bận, vui lòng thử lại sau.</span>';
+                    btn.disabled = false;
+                });
+        }
+
+        function downloadTikTok() {
+            const url = document.getElementById('tiktok-url').value;
+            const status = document.getElementById('download-status');
+            const btn = document.getElementById('btn-download');
+
+            if (!url) return alert('Vui lòng dán link TikTok!');
+
+            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải video không logo (Anti-Watermark)...';
+            btn.disabled = true;
+
+            fetch(`http://localhost:3000/download?url=${encodeURIComponent(url)}`)
+                .then(res => res.json())
+                .then(data => {
+                    status.innerHTML = `<span style="color: #10b981"><i class="fas fa-check-circle"></i> Thành công! Đã thêm "${data.filename}" vào hàng đợi.</span>`;
+                    document.getElementById('tiktok-url').value = '';
+                    btn.disabled = false;
+
+                    // Cập nhật danh sách (giả lập)
+                    videos.unshift({
+                        id: Date.now(),
+                        title: 'Đang chờ xử lý AI...',
+                        desc: 'Video vừa tải về từ TikTok',
+                        tags: '#trending',
+                        status: 'ready',
+                        thumb: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800' // TikTok Icon Mesh
+                    });
+                    renderVideos();
+                })
+                .catch(err => {
+                    status.innerHTML = '<span style="color: #ef4444">❌ Lỗi: Không thể kết nối với Bot tải video!</span>';
+                    btn.disabled = false;
+                });
+        }
+
+        function syncData() {
+            alert('Đang kết nối với Google Sheet để lấy dữ liệu mới nhất...');
+        }
+
+        function addNewVideo() {
+            alert('Tính năng chọn video từ máy tính sẽ được cập nhật ở phiên bản sau.');
+        }
+    </script>
+</body>
+
+</html>

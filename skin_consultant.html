@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gương Thần Soi Da ✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff9a9e;
+            /* Hồng phấn */
+            --secondary: #fecfef;
+            /* Hồng nhạt */
+            --accent: #ff6b6b;
+            /* Hồng đậm điểm nhấn */
+            --bg: #fff5f8;
+            /* Nền kem hồng */
+            --card-bg: #ffffff;
+            --text-main: #664449;
+            --text-light: #99888a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(#ffe4e6 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER CUTE */
+        header {
+            padding: 15px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(255, 182, 193, 0.2);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .logo {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.5rem;
+            color: var(--accent);
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            margin-top: 80px;
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* SCANNER AREA CUTE */
+        .scanner-wrapper {
+            position: relative;
+            padding: 10px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(255, 154, 158, 0.3);
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .scanner-container {
+            width: 100%;
+            height: 350px;
+            /* Portrait friendly */
+            background: #ffe4e6;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            border-radius: 30px;
+        }
+
+        .camera-placeholder {
+            font-size: 3rem;
+            color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            z-index: 1;
+        }
+
+        .camera-placeholder span {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: #fff;
+            box-shadow: 0 0 15px var(--accent);
+            top: 0;
+            left: 0;
+            animation: scanAnim 3s ease-in-out infinite;
+            display: none;
+            z-index: 10;
+        }
+
+        @keyframes scanAnim {
+            0% {
+                top: 0%;
+                opacity: 0;
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            60% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        /* STATUS TEXT */
+        .status-text {
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 700;
+            min-height: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* CUTE BUTTON */
+        .action-btn {
+            padding: 15px 50px;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            border: none;
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 80%;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6);
+        }
+
+        /* RESULTS SECTION */
+        #results-area {
+            display: none;
+            width: 100%;
+            margin-top: 10px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-card {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 2px solid #fff;
+        }
+
+        .score-info h4 {
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .score-info small {
+            color: var(--text-light);
+        }
+
+        .score-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) var(--p), #ffe4e6 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 0 0 4px white;
+        }
+
+        .score-circle::after {
+            content: attr(data-val);
+            position: absolute;
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 0.8rem;
+            background: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* RECOMMENDATION CARD */
+        .recommendation {
+            background: #fff;
+            border: 2px dashed var(--primary);
+            padding: 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recommendation::before {
+            content: "💖 Đề xuất riêng cho bạn";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .buy-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">🌸 Skin Care AI 🌸</div>
+    </header>
+
+    <main>
+        <div class="scanner-wrapper">
+            <div class="scanner-container">
+                <div class="camera-placeholder" id="cam-placeholder">
+                    📷 <span>Đang khởi động Camera...</span>
+                </div>
+                <video id="camera-feed" autoplay playsinline muted></video>
+                <div id="scan-line" class="scanner-line"></div>
+            </div>
+        </div>
+
+        <div class="status-text" id="status-text">Chào bạn! Cùng soi da nhé ✨</div>
+
+        <button class="action-btn" id="scan-btn" onclick="startScan()">
+            <span>🔍 SOI DA NGAY</span>
+        </button>
+
+        <div id="results-area">
+            <div class="section-title">📝 Kết quả của bạn</div>
+
+            <div class="score-card">
+                <div class="score-info">
+                    <h4>Độ ẩm tự nhiên</h4>
+                    <small>Cần cấp nước thêm xíu nha!</small>
+                </div>
+                <div class="score-circle" id="score-moist" style="--p: 40%;" data-val="Thấp"></div>
+            </div>
+
+            <div class="score-card">
+                <div class="score-info">
+                    <h4>Tình trạng mụn</h4>
+                    <small>Có vài nốt mụn nhỏ</small>
+                </div>
+                <div class="score-circle" id="score-acne" style="--p: 70%;" data-val="Có"></div>
+            </div>
+
+            <div id="ai-suggestion" class="recommendation">
+                <!-- Data from JS -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const video = document.getElementById('camera-feed');
+        const scanLine = document.getElementById('scan-line');
+        const statusText = document.getElementById('status-text');
+        const btn = document.getElementById('scan-btn');
+        const results = document.getElementById('results-area');
+        const placeholder = document.getElementById('cam-placeholder');
+
+        // 1. Start Camera
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    placeholder.style.display = 'none';
+                };
+            } catch (err) {
+                placeholder.innerHTML = "🚫 <span>Không thấy Camera đâu cả!</span>";
+                statusText.innerText = "Chưa cấp quyền Camera rồi 🥺";
+            }
+        }
+
+        // 2. Logic Scan
+        function startScan() {
+            btn.style.display = 'none';
+            statusText.innerText = "⏳ Đang quét nhẹ nhàng...";
+            scanLine.style.display = 'block';
+
+            setTimeout(() => {
+                statusText.innerText = "✨ Đang tìm kiếm khuyết điểm...";
+            }, 1000);
+
+            setTimeout(() => {
+                statusText.innerText = "🤖 Đợi AI suy nghĩ chút nha...";
+            }, 2500);
+
+            setTimeout(() => {
+                finishScan();
+            }, 4000);
+        }
+
+        // 3. Simulated Results
+        function finishScan() {
+            scanLine.style.display = 'none';
+            statusText.innerText = "🎉 Xong rồi nè! Xem kết quả phía dưới";
+            results.style.display = 'block';
+
+            // Fake Database Logic - Updated to use real content samples
+            const problems = [
+                {
+                    type: 'Dry',
+                    msg: 'Da bạn hơi khô một chút, cần uống nước và bôi kem dưỡng ẩm nha.',
+                    product: 'Kem Dưỡng Ẩm Vitamin B5',
+                    advice: 'Em này siêu lành tính, thấm nhanh cực!',
+                    price: '159.000đ'
+                },
+                {
+                    type: 'Acne',
+                    msg: 'Phát hiện vài bé mụn đang sưng. Đừng nặn nha!',
+                    product: 'Toner Pad Giảm Mụn',
+                    advice: 'Lau nhẹ mỗi tối là mụn xẹp liền hà.',
+                    price: '210.000đ'
+                }
+            ];
+
+            const diagnosis = problems[Math.floor(Math.random() * problems.length)];
+
+            // Render UI
+            const suggestionBox = document.getElementById('ai-suggestion');
+            suggestionBox.innerHTML = `
+                <div style="margin-top:15px;">
+                    <p style="color:#666; margin-bottom:10px;">${diagnosis.msg}</p>
+                    <div style="background:#fff5f8; padding:15px; border-radius:15px; border:1px solid #ffe4e6;">
+                        <h3 style="color:#ff6b6b; font-size:1.1rem; margin-bottom:5px;">${diagnosis.product}</h3>
+                        <p style="font-size:0.9rem; font-style:italic; color:#888; margin-bottom:10px;">"${diagnosis.advice}"</p>
+                        <a href="https://vt.tiktok.com/ZSN..." class="buy-btn">MUA NGAY - ${diagnosis.price}</a>
+                    </div>
+                </div>
+            `;
+
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        initCamera();
+    </script>
+</body>
+
+</html>
