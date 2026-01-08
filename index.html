@@ -161,22 +161,20 @@
             }
         }
 
-        .progress-wrapper {
+        /* NEW PROGRESS BAR (BELOW BUTTON) */
+        .progress-container {
             width: 100%;
-            margin-top: -30px;
-            z-index: 20;
-            position: relative;
-            padding: 0 20px;
+            margin-top: 20px;
             display: none;
         }
 
         .progress-track {
-            background: rgba(255, 255, 255, 0.5);
+            background: #e5e7eb;
             width: 100%;
-            height: 12px;
+            height: 20px;
             border-radius: 10px;
             overflow: hidden;
-            backdrop-filter: blur(5px);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .progress-fill {
@@ -187,13 +185,12 @@
             transition: width 0.1s linear;
         }
 
-        .progress-text {
+        .progress-label {
             text-align: center;
-            color: white;
+            color: var(--accent);
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 0.9rem;
             margin-top: 5px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .status-text {
@@ -340,6 +337,10 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .rec-tag {
@@ -430,12 +431,14 @@
                 <video id="camera-feed" autoplay playsinline muted></video>
                 <canvas id="scan-canvas" style="display:none;"></canvas>
                 <div id="scan-line" class="scanner-line"></div>
-                <div class="progress-wrapper" id="progress-area">
-                    <div class="progress-track">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    <div class="progress-text" id="progress-text">0%</div>
+            </div>
+
+            <!-- NEW PROGRESS BAR LOCATION -->
+            <div class="progress-container" id="progress-area">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
                 </div>
+                <div class="progress-label" id="progress-text">0% - Đang quét...</div>
             </div>
         </div>
 
@@ -466,7 +469,9 @@
 
             <div id="ai-suggestion" class="recommendation">
                 <div class="rec-tag">💖 Đề xuất riêng cho bạn</div>
-                <div id="rec-content">Đang tìm sản phẩm phù hợp...</div>
+                <div id="rec-content">
+                    <p>Đang tìm sản phẩm phù hợp...</p>
+                </div>
             </div>
 
             <a href="https://www.tiktok.com/@cuongvqart" target="_blank" class="store-btn">
@@ -479,7 +484,6 @@
         const video = document.getElementById('camera-feed');
         const canvas = document.getElementById('scan-canvas');
         const ctx = canvas.getContext('2d');
-
         const scanLine = document.getElementById('scan-line');
         const statusText = document.getElementById('status-text');
         const btn = document.getElementById('scan-btn');
@@ -501,7 +505,13 @@
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                 };
-                fetch('products.json').then(r => r.json()).then(d => productList = d).catch(e => console.log('No JSON data'));
+
+                // Fetch data, nếu lỗi thì dùng list rỗng
+                try {
+                    const res = await fetch('products.json');
+                    if (res.ok) productList = await res.json();
+                } catch (e) { console.log('Fetch error', e); }
+
             } catch (err) {
                 placeholder.innerHTML = "🚫 <span>Không bật được Camera!<br>Hãy kiểm tra quyền truy cập.</span>";
                 statusText.innerText = "Lỗi Camera 🥺";
@@ -530,7 +540,7 @@
 
         function startScan() {
             btn.style.display = 'none';
-            statusText.innerText = "⏳ Đang kết nối máy chủ AI...";
+            statusText.style.display = 'none'; // Ẩn status cũ để dùng progress bar
             scanLine.style.display = 'block';
             progressArea.style.display = 'block';
 
@@ -538,11 +548,13 @@
 
             const scanner = setInterval(() => {
                 percent += 3; if (percent > 100) percent = 100;
-                progressFill.style.width = percent + "%"; progressText.innerText = percent + "%";
+                progressFill.style.width = percent + "%";
 
-                if (percent < 30) statusText.innerText = "🔍 Đang quét từng điểm ảnh...";
-                else if (percent < 60) statusText.innerText = "✨ Đang phân tích sắc tố da...";
-                else if (percent < 90) statusText.innerText = "🤖 AI đang tổng hợp kết quả...";
+                let pText = "";
+                if (percent < 30) pText = `${percent}% - Đang quét từng điểm ảnh...`;
+                else if (percent < 60) pText = `${percent}% - Phân tích sắc tố...`;
+                else pText = `${percent}% - Tổng hợp dữ liệu AI...`;
+                progressText.innerText = pText;
 
                 const metrics = analyzeFrame();
                 if (metrics) { totalBright += metrics.brightness; totalRed += metrics.redness; frames++; }
@@ -559,6 +571,7 @@
         function finishScan(brightness, redness) {
             scanLine.style.display = 'none';
             progressArea.style.display = 'none';
+            statusText.style.display = 'block';
             statusText.innerText = "🎉 Đã có kết quả phân tích!";
             results.style.display = 'block';
 
@@ -577,30 +590,43 @@
             let redMsg = "Da ổn định";
             let skinIssue = "Normal";
 
-            if (redness > 20) { redMsg = "Cảnh báo: Da ửng đỏ / Nhạy cảm"; skinIssue = "Sensitive"; }
-            else if (redness > 30) { redMsg = "Cảnh báo: Có dấu hiệu viêm mụn"; skinIssue = "Acne"; }
+            if (redness > 20) { redMsg = "Da ửng đỏ / Nhạy cảm"; skinIssue = "Sensitive"; }
+            else if (redness > 30) { redMsg = "Có dấu hiệu viêm mụn"; skinIssue = "Acne"; }
             if (toneScore < 40 && skinIssue === "Normal") skinIssue = "Dry";
             document.getElementById('red-msg').innerText = redMsg;
 
+            // FIX: Đảm bảo luôn có sản phẩm để hiển thị
             let bestMatch = null;
-            if (productList.length > 0) {
-                bestMatch = productList.find(p => p.skinType.includes(skinIssue)) || productList[0];
-            } else {
+            if (productList && productList.length > 0) {
+                // Thử tìm theo skinType
+                bestMatch = productList.find(p => p.skinType && p.skinType.includes(skinIssue));
+
+                // Nếu không thấy, lấy đại cái đầu tiên
+                if (!bestMatch) bestMatch = productList[Math.floor(Math.random() * productList.length)];
+            }
+
+            // Fallback cuối cùng nếu list rỗng
+            if (!bestMatch) {
                 bestMatch = {
-                    name: "Bộ phục hồi da B5",
-                    advice: "Da bạn đang cần phục hồi gấp, B5 là chân ái!",
+                    name: "Bộ phục hồi da CuongVQ",
+                    advice: "Sản phẩm phục hồi toàn diện cho mọi loại da.",
                     link: "https://www.tiktok.com/@cuongvqart",
-                    image: "https://source.unsplash.com/random/100x100/?skincare"
+                    image: "https://via.placeholder.com/150",
+                    original_link: "https://www.tiktok.com/@cuongvqart"
                 };
             }
 
             const cleanLink = bestMatch.link || bestMatch.original_link || "#";
 
             document.getElementById('rec-content').innerHTML = `
-                <img src="${bestMatch.image || 'https://via.placeholder.com/100'}" class="rec-img">
-                <h3 style="color:#ff6b6b; font-size:1.1rem; margin-bottom:5px;">${bestMatch.name}</h3>
-                <p style="font-size:0.9rem; font-style:italic; color:#888; margin-bottom:10px;">phát hiện <b>${skinIssue}</b>: "${bestMatch.advice || 'Sản phẩm này cực tốt cho da của bạn'}"</p>
-                <a href="${cleanLink}" target="_blank" class="buy-btn">MUA NGAY TRÊN TIKTOK</a>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <img src="${bestMatch.image || 'https://via.placeholder.com/100'}" class="rec-img">
+                    <h3 style="color:#ff6b6b; font-size:1.1rem; margin-bottom:5px; text-align:center;">${bestMatch.name}</h3>
+                    <p style="font-size:0.9rem; font-style:italic; color:#888; margin-bottom:10px; text-align:center;">
+                        AI phát hiện <b>${skinIssue}</b>: "${bestMatch.advice || 'Khuyên dùng sản phẩm này'}"
+                    </p>
+                    <a href="${cleanLink}" target="_blank" class="buy-btn">MUA NGAY TRÊN TIKTOK</a>
+                </div>
             `;
 
             results.scrollIntoView({ behavior: 'smooth' });
