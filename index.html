@@ -279,25 +279,41 @@
             gap: 5px;
         }
 
+        /* GRID LAYOUT CHO 4 CHỈ SỐ */
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
         .score-card {
             background: var(--card-bg);
-            padding: 15px 20px;
+            padding: 15px;
             border-radius: 20px;
-            margin-bottom: 15px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
             border: 2px solid #fff;
+            position: relative;
         }
 
         .score-info h4 {
             color: var(--text-main);
-            font-size: 1rem;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            margin-bottom: 2px;
         }
 
         .score-info small {
             color: var(--text-light);
+            font-size: 0.75rem;
+            display: block;
+            height: 1.5em;
+            line-height: 1.3em;
         }
 
         .score-circle {
@@ -327,22 +343,18 @@
             justify-content: center;
         }
 
-        /* RECOMMENDATION CARD PREMIUM */
         .recommendation {
             background: linear-gradient(to bottom, #fff, #fff5f5);
             border: 1px solid #ffdde1;
             padding: 30px 15px 20px 15px;
-            /* Tăng padding top để nhãn không bị che */
             border-radius: 25px;
-            margin-top: 30px;
+            margin-top: 10px;
             text-align: center;
             position: relative;
             width: 100%;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            /* Bóng mờ nhẹ hơn */
         }
 
-        /* Chỉnh sửa thành Label/Tag phẳng, gọn gàng */
         .rec-tag {
             position: absolute;
             top: -12px;
@@ -352,19 +364,15 @@
             color: #d63031;
             border: 1px solid #d63031;
             padding: 4px 15px;
-            /* Giảm padding */
             font-size: 0.7rem;
-            /* Giảm font size */
             font-weight: 800;
             border-radius: 50px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             z-index: 10;
             white-space: nowrap;
-            /* Cấm xuống dòng tuyệt đối */
             width: auto;
             max-width: 90%;
-            /* Giới hạn chiều rộng nếu màn hình quá bé */
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -407,7 +415,6 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-            /* FILL ĐẦY KHUNG HÌNH */
             border-radius: 15px;
             margin-bottom: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -483,22 +490,41 @@
         </button>
 
         <div id="results-area">
-            <div class="section-title">📝 Kết quả phân tích thật</div>
+            <div class="section-title">📝 Kết quả phân tích (4 Chỉ số)</div>
 
-            <div class="score-card">
-                <div class="score-info">
-                    <h4>Độ sáng da (Tone)</h4>
-                    <small id="tone-msg">Đang tính toán...</small>
+            <div class="score-grid">
+                <!-- 1. TONE -->
+                <div class="score-card">
+                    <div class="score-circle" id="score-tone" style="--p: 0%;" data-val="--"></div>
+                    <div class="score-info">
+                        <h4>Độ Sáng</h4>
+                        <small id="tone-msg">...</small>
+                    </div>
                 </div>
-                <div class="score-circle" id="score-tone" style="--p: 0%;" data-val="--"></div>
-            </div>
-
-            <div class="score-card">
-                <div class="score-info">
-                    <h4>Vùng nhạy cảm/Đỏ</h4>
-                    <small id="red-msg">Đang tính toán...</small>
+                <!-- 2. REDNESS -->
+                <div class="score-card">
+                    <div class="score-circle" id="score-red" style="--p: 0%;" data-val="--"></div>
+                    <div class="score-info">
+                        <h4>Độ Đỏ/Viêm</h4>
+                        <small id="red-msg">...</small>
+                    </div>
                 </div>
-                <div class="score-circle" id="score-red" style="--p: 0%;" data-val="--"></div>
+                <!-- 3. TEXTURE (ĐỘ MỊN) -->
+                <div class="score-card">
+                    <div class="score-circle" id="score-smooth" style="--p: 0%;" data-val="--"></div>
+                    <div class="score-info">
+                        <h4>Độ Mịn Da</h4>
+                        <small id="smooth-msg">...</small>
+                    </div>
+                </div>
+                <!-- 4. OIL (ĐỘ DẦU) -->
+                <div class="score-card">
+                    <div class="score-circle" id="score-oil" style="--p: 0%;" data-val="--"></div>
+                    <div class="score-info">
+                        <h4>Độ Dầu</h4>
+                        <small id="oil-msg">...</small>
+                    </div>
+                </div>
             </div>
 
             <div id="ai-suggestion" class="recommendation">
@@ -539,15 +565,13 @@
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                 };
-
                 try {
                     const res = await fetch('products.json');
                     if (res.ok) productList = await res.json();
                 } catch (e) { console.log('Fetch error', e); }
-
             } catch (err) {
-                placeholder.innerHTML = "🚫 <span>Không bật được Camera!<br>Hãy kiểm tra quyền truy cập.</span>";
-                statusText.innerText = "Lỗi Camera 🥺";
+                placeholder.innerHTML = "🚫 <span>Lỗi Camera!</span>";
+                statusText.innerText = "Chưa cấp quyền Camera 🥺";
             }
         }
 
@@ -559,16 +583,43 @@
             const step = 20;
 
             let totalR = 0, totalG = 0, totalB = 0, count = 0;
-            let rednessSum = 0;
+            let rednessSum = 0, oilPixels = 0, varianceSum = 0;
+            let pixels = []; // Store simplified grayscale for variance
 
             for (let i = 0; i < data.length; i += 4 * step) {
                 const r = data[i], g = data[i + 1], b = data[i + 2];
                 totalR += r; totalG += g; totalB += b;
+
                 const brightness = (r + g + b) / 3;
+                pixels.push(brightness);
+
+                // Redness Logic
                 if (brightness > 20) rednessSum += (r - (g + b) / 2);
+
+                // Oiliness Logic: High brightness highlight
+                if (brightness > 220) oilPixels++;
+
                 count++;
             }
-            return { brightness: (totalR + totalG + totalB) / (3 * count), redness: rednessSum / count };
+
+            const avgBright = (totalR + totalG + totalB) / (3 * count);
+
+            // Calculate Texture (Variance/Noise) - Simplified
+            // Compare each pixel to the average -> Higher Diff = Rougher
+            let totalDiff = 0;
+            for (let p of pixels) {
+                totalDiff += Math.abs(p - avgBright);
+            }
+            const smoothness = 100 - Math.min((totalDiff / count) * 2, 100); // Inverse Variance
+
+            const oilScore = Math.min((oilPixels / count) * 500, 100); // Scale up small percentage
+
+            return {
+                brightness: avgBright,
+                redness: rednessSum / count,
+                smoothness: smoothness,
+                oil: oilScore
+            };
         }
 
         function startScan() {
@@ -577,79 +628,103 @@
             scanLine.style.display = 'block';
             progressArea.style.display = 'block';
 
-            let frames = 0, totalBright = 0, totalRed = 0, percent = 0;
+            let frames = 0, totalBright = 0, totalRed = 0, totalSmooth = 0, totalOil = 0, percent = 0;
 
             const scanner = setInterval(() => {
                 percent += 3; if (percent > 100) percent = 100;
                 progressFill.style.width = percent + "%";
 
                 let pText = "";
-                if (percent < 30) pText = `${percent}% - Đang quét từng điểm ảnh...`;
-                else if (percent < 60) pText = `${percent}% - Phân tích sắc tố...`;
-                else pText = `${percent}% - Tổng hợp dữ liệu AI...`;
+                if (percent < 30) pText = `${percent}% - Quét cấu trúc bề mặt...`;
+                else if (percent < 60) pText = `${percent}% - Phân tích sắc tố & Dầu...`;
+                else pText = `${percent}% - Tổng hợp kết quả AI...`;
                 progressText.innerText = pText;
 
                 const metrics = analyzeFrame();
-                if (metrics) { totalBright += metrics.brightness; totalRed += metrics.redness; frames++; }
+                if (metrics) {
+                    totalBright += metrics.brightness;
+                    totalRed += metrics.redness;
+                    totalSmooth += metrics.smoothness;
+                    totalOil += metrics.oil;
+                    frames++;
+                }
 
                 if (percent >= 100) {
                     clearInterval(scanner);
-                    const finalBright = frames > 0 ? totalBright / frames : 100;
-                    const finalRed = frames > 0 ? totalRed / frames : 10;
-                    setTimeout(() => finishScan(finalBright, finalRed), 500);
+                    const results = {
+                        bright: frames > 0 ? totalBright / frames : 100,
+                        red: frames > 0 ? totalRed / frames : 10,
+                        smooth: frames > 0 ? totalSmooth / frames : 50,
+                        oil: frames > 0 ? totalOil / frames : 10
+                    };
+                    setTimeout(() => finishScan(results), 500);
                 }
             }, 100);
         }
 
-        function finishScan(brightness, redness) {
+        function updateScore(id, val, percent) {
+            const el = document.getElementById(id);
+            el.style.setProperty('--p', `${percent}%`);
+            el.setAttribute('data-val', val);
+        }
+
+        function finishScan(data) {
             scanLine.style.display = 'none';
             progressArea.style.display = 'none';
             statusText.style.display = 'block';
-            statusText.innerText = "✨ Đã tìm thấy chân ái của bạn! ✨";
+            statusText.innerText = "✨ Đã có kết quả phân tích 4D! ✨";
             results.style.display = 'block';
 
-            const toneScore = Math.min(Math.round((brightness / 255) * 100), 100);
-            document.getElementById('score-tone').style.setProperty('--p', `${toneScore}%`);
-            document.getElementById('score-tone').setAttribute('data-val', `${toneScore}`);
+            // 1. TONE
+            const toneSc = Math.min(Math.round((data.bright / 255) * 100), 100);
+            updateScore('score-tone', toneSc, toneSc);
+            document.getElementById('tone-msg').innerText = toneSc < 40 ? "Da hơi tối/sạm" : (toneSc > 70 ? "Da sáng khỏe" : "Trung bình");
 
-            let toneMsg = "Da trung bình";
-            if (toneScore < 30) toneMsg = "Da hơi tối màu"; else if (toneScore > 60) toneMsg = "Da sáng khỏe";
-            document.getElementById('tone-msg').innerText = toneMsg;
+            // 2. REDNESS
+            const redSc = Math.round(data.red);
+            const redPercent = Math.min((redSc / 40) * 100, 100);
+            updateScore('score-red', redSc, redPercent);
+            document.getElementById('red-msg').innerText = redSc > 20 ? "Cảnh báo viêm đỏ" : "Da ổn định";
 
-            const redScorePercent = Math.min(Math.round((redness / 40) * 100), 100);
-            document.getElementById('score-red').style.setProperty('--p', `${redScorePercent}%`);
-            document.getElementById('score-red').setAttribute('data-val', `${Math.round(redness)}`);
+            // 3. SMOOTHNESS (Mới)
+            const smoothSc = Math.round(data.smooth);
+            updateScore('score-smooth', smoothSc, smoothSc);
+            document.getElementById('smooth-msg').innerText = smoothSc < 50 ? "Lỗ chân lông to" : "Bề mặt mịn màng";
 
-            let redMsg = "Da ổn định";
+            // 4. OIL (Mới)
+            const oilSc = Math.round(data.oil);
+            updateScore('score-oil', oilSc, oilSc);
+            document.getElementById('oil-msg').innerText = oilSc > 40 ? "Da bóng dầu" : (oilSc < 10 ? "Da hơi khô" : "Độ dầu chuẩn");
+
+            // Logic chẩn đoán tổng hợp
             let skinIssue = "Normal";
+            if (redSc > 25) skinIssue = "Sensitive"; // Ưu tiên viêm
+            else if (oilSc > 50) skinIssue = "Oily"; // Dầu nhiều
+            else if (smoothSc < 40) skinIssue = "Dry"; // Sần sùi thường là khô
+            else if (toneSc < 40) skinIssue = "Whitening"; // Tối màu cần trắng
 
-            if (redness > 20) { redMsg = "Da ửng đỏ / Nhạy cảm"; skinIssue = "Sensitive"; }
-            else if (redness > 30) { redMsg = "Có dấu hiệu viêm mụn"; skinIssue = "Acne"; }
-            if (toneScore < 40 && skinIssue === "Normal") skinIssue = "Dry";
-            document.getElementById('red-msg').innerText = redMsg;
-
+            // Recommend
             let bestMatch = null;
             if (productList && productList.length > 0) {
-                bestMatch = productList.find(p => p.skinType && p.skinType.includes(skinIssue));
+                // Mapping logic: Whitening -> Vitamin C, Sensitive -> B5, Oily -> Cleanser
+                let searchKey = skinIssue;
+                if (skinIssue === 'Whitening') searchKey = 'dry;normal';
+
+                bestMatch = productList.find(p => p.skinType && p.skinType.includes(searchKey));
                 if (!bestMatch) bestMatch = productList[Math.floor(Math.random() * productList.length)];
             }
 
-            // Dùng ảnh nội bộ ổn định (Đã up lên GitHub)
             const stableFallbackImg = "product_fallback.jpg";
-
             if (!bestMatch) {
                 bestMatch = {
-                    name: "Combo Phục Hồi & Căng Bóng Da",
-                    advice: "Giải pháp toàn diện giúp da bạn sáng khỏe, hết lo âu.",
-                    link: "https://www.tiktok.com/@cuongvqart",
-                    image: stableFallbackImg,
+                    name: "Combo Phục Hồi & Căng Bóng Da", advice: "Giải pháp toàn diện giúp da bạn sáng khỏe.",
+                    link: "https://www.tiktok.com/@cuongvqart", image: stableFallbackImg,
                     original_link: "https://www.tiktok.com/@cuongvqart"
                 };
             }
 
             let displayImg = bestMatch.image;
             if (!displayImg || displayImg.includes("via.placeholder")) displayImg = stableFallbackImg;
-
             const cleanLink = bestMatch.link || bestMatch.original_link || "#";
 
             document.getElementById('rec-content').innerHTML = `
