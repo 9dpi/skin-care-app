@@ -8,15 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pacifico&display=swap"
         rel="stylesheet">
     <style>
+        /* GIỮ NGUYÊN CSS CŨ VÌ DESIGN ĐANG RẤT ĐẸP */
         :root {
             --primary: #ff9a9e;
-            /* Hồng phấn */
             --secondary: #fecfef;
-            /* Hồng nhạt */
             --accent: #ff6b6b;
-            /* Hồng đậm điểm nhấn */
             --bg: #fff5f8;
-            /* Nền kem hồng */
             --card-bg: #ffffff;
             --text-main: #664449;
             --text-light: #99888a;
@@ -39,7 +36,6 @@
             min-height: 100vh;
         }
 
-        /* HEADER CUTE */
         header {
             padding: 15px;
             text-align: center;
@@ -61,7 +57,6 @@
             text-shadow: 2px 2px 0px #fff;
         }
 
-        /* MAIN CONTENT */
         main {
             margin-top: 80px;
             flex: 1;
@@ -75,7 +70,6 @@
             margin-right: auto;
         }
 
-        /* SCANNER AREA CUTE */
         .scanner-wrapper {
             position: relative;
             padding: 10px;
@@ -89,7 +83,6 @@
         .scanner-container {
             width: 100%;
             height: 350px;
-            /* Portrait friendly */
             background: #ffe4e6;
             border-radius: 30px;
             position: relative;
@@ -156,7 +149,6 @@
             }
         }
 
-        /* STATUS TEXT */
         .status-text {
             font-size: 1.1rem;
             color: var(--accent);
@@ -170,7 +162,6 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        /* CUTE BUTTON */
         .action-btn {
             padding: 15px 50px;
             border-radius: 50px;
@@ -198,7 +189,6 @@
             box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6);
         }
 
-        /* RESULTS SECTION */
         #results-area {
             display: none;
             width: 100%;
@@ -276,7 +266,7 @@
             justify-content: center;
         }
 
-        /* RECOMMENDATION CARD */
+        /* RECOMMENDATION CARD & UPSELL */
         .recommendation {
             background: #fff;
             border: 2px dashed var(--primary);
@@ -286,6 +276,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
         .recommendation::before {
@@ -316,155 +307,232 @@
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+        .upsell-badge {
+            display: inline-block;
+            background: #ffeb3b;
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            border: 1px solid #fbc02d;
         }
     </style>
 </head>
 
 <body>
-
     <header>
         <div class="logo">🌸 Skin Care AI 🌸</div>
     </header>
-
     <main>
         <div class="scanner-wrapper">
             <div class="scanner-container">
-                <div class="camera-placeholder" id="cam-placeholder">
-                    📷 <span>Đang khởi động Camera...</span>
-                </div>
+                <div class="camera-placeholder" id="cam-placeholder">📷 <span>Đang khởi động Camera...</span></div>
                 <video id="camera-feed" autoplay playsinline muted></video>
                 <div id="scan-line" class="scanner-line"></div>
+                <!-- Canvas ẩn để chụp ảnh gửi API -->
+                <canvas id="photo-canvas" style="display:none;"></canvas>
             </div>
         </div>
-
         <div class="status-text" id="status-text">Chào bạn! Cùng soi da nhé ✨</div>
-
-        <button class="action-btn" id="scan-btn" onclick="startScan()">
-            <span>🔍 SOI DA NGAY</span>
-        </button>
+        <button class="action-btn" id="scan-btn" onclick="startScanProcess()"><span>🔍 SOI DA NGAY</span></button>
 
         <div id="results-area">
             <div class="section-title">📝 Kết quả của bạn</div>
-
             <div class="score-card">
                 <div class="score-info">
-                    <h4>Độ ẩm tự nhiên</h4>
-                    <small>Cần cấp nước thêm xíu nha!</small>
+                    <h4>Độ ẩm tự nhiên</h4><small id="txt-moist">Đang phân tích...</small>
                 </div>
-                <div class="score-circle" id="score-moist" style="--p: 40%;" data-val="Thấp"></div>
+                <div class="score-circle" id="score-moist" style="--p: 40%;" data-val="?"></div>
             </div>
-
             <div class="score-card">
                 <div class="score-info">
-                    <h4>Tình trạng mụn</h4>
-                    <small>Có vài nốt mụn nhỏ</small>
+                    <h4>Tình trạng mụn</h4><small id="txt-acne">Đang phân tích...</small>
                 </div>
-                <div class="score-circle" id="score-acne" style="--p: 70%;" data-val="Có"></div>
+                <div class="score-circle" id="score-acne" style="--p: 10%;" data-val="?"></div>
             </div>
-
-            <div id="ai-suggestion" class="recommendation">
-                <!-- Data from JS -->
-            </div>
+            <div id="ai-suggestion"></div>
         </div>
     </main>
 
     <script>
         const video = document.getElementById('camera-feed');
+        const canvas = document.getElementById('photo-canvas');
         const scanLine = document.getElementById('scan-line');
         const statusText = document.getElementById('status-text');
         const btn = document.getElementById('scan-btn');
         const results = document.getElementById('results-area');
-        const placeholder = document.getElementById('cam-placeholder');
 
-        // 1. Start Camera
+        // --- 1. SET UP CAMERA ---
         async function initCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
-                video.onloadedmetadata = () => {
-                    placeholder.style.display = 'none';
-                };
+                video.onloadedmetadata = () => { document.getElementById('cam-placeholder').style.display = 'none'; };
             } catch (err) {
-                placeholder.innerHTML = "🚫 <span>Không thấy Camera đâu cả!</span>";
                 statusText.innerText = "Chưa cấp quyền Camera rồi 🥺";
             }
         }
+        initCamera();
 
-        // 2. Logic Scan
-        function startScan() {
+        // --- 2. QUY TRÌNH SOI DA ---
+        function startScanProcess() {
             btn.style.display = 'none';
-            statusText.innerText = "⏳ Đang quét nhẹ nhàng...";
+            statusText.innerText = "⏳ Đang kết nối API phân tích...";
             scanLine.style.display = 'block';
 
-            setTimeout(() => {
-                statusText.innerText = "✨ Đang tìm kiếm khuyết điểm...";
-            }, 1000);
+            // Chụp ảnh từ video stream
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            setTimeout(() => {
-                statusText.innerText = "🤖 Đợi AI suy nghĩ chút nha...";
-            }, 2500);
-
-            setTimeout(() => {
-                finishScan();
-            }, 4000);
+            // Gửi ảnh đi phân tích (Giả lập delay)
+            setTimeout(async () => {
+                await analyzeSkinAndRecommend();
+            }, 3000);
         }
 
-        // 3. Simulated Results
-        function finishScan() {
-            scanLine.style.display = 'none';
-            statusText.innerText = "🎉 Xong rồi nè! Xem kết quả phía dưới";
-            results.style.display = 'block';
+        // --- 3. GỌI API & LOGIC UPSELL ---
+        async function analyzeSkinAndRecommend() {
+            // A. KẾT NỐI API THẬT (Placeholder)
+            // Trong thực tế, bạn sẽ bỏ comment dòng dưới và điền API Key
+            // const apiData = await callExternalAI(canvas.toDataURL('image/jpeg'));
 
-            // Fake Database Logic - Updated to use real content samples
-            const problems = [
-                {
-                    type: 'Dry',
-                    msg: 'Da bạn hơi khô một chút, cần uống nước và bôi kem dưỡng ẩm nha.',
-                    product: 'Kem Dưỡng Ẩm Vitamin B5',
-                    advice: 'Em này siêu lành tính, thấm nhanh cực!',
-                    price: '159.000đ'
-                },
-                {
-                    type: 'Acne',
-                    msg: 'Phát hiện vài bé mụn đang sưng. Đừng nặn nha!',
-                    product: 'Toner Pad Giảm Mụn',
-                    advice: 'Lau nhẹ mỗi tối là mụn xẹp liền hà.',
-                    price: '210.000đ'
+            // Hiện tại dùng thuật toán Smart Simulation
+            const diagnosis = simulateSmartDiagnosis();
+
+            // Hiển thị kết quả đo đạc
+            displayScores(diagnosis);
+
+            // B. TÌM SẢN PHẨM TỪ KHO (Sheet -> JSON)
+            try {
+                const response = await fetch('products.json');
+                const products = await response.json();
+
+                // Logic ĐẶC BIỆT: Tìm sản phẩm ở Hàng thứ 2 (đã được Force Approve trong JSON)
+                // Filter sản phẩm phù hợp với Diagnosis.type (VD: Acne)
+                // Ưu tiên sản phẩm có Status APPROVE
+
+                let mainProduct = products.find(p => p.status === 'APPROVE' && p.skinType.includes(diagnosis.type));
+
+                // Nếu không có hàng Approve khớp bệnh, lấy đại hàng Approve bất kỳ (để đảm bảo Row 2 luôn hiện)
+                if (!mainProduct) mainProduct = products.find(p => p.status === 'APPROVE');
+
+                // Fallback cuối cùng
+                if (!mainProduct) mainProduct = products[0];
+
+                // LOGIC UPSELL: Tìm thêm sản phẩm bổ trợ (Ví dụ combo)
+                let upsellProduct = null;
+                if (diagnosis.type === 'Acne') {
+                    // Nếu bị mụn -> Tìm thêm Sữa rửa mặt (Cleanser)
+                    upsellProduct = products.find(p => p.category === 'Cleanser');
+                } else {
+                    // Hoặc tìm thêm Kem dưỡng (Cream)
+                    upsellProduct = products.find(p => p.category === 'Cream');
                 }
-            ];
 
-            const diagnosis = problems[Math.floor(Math.random() * problems.length)];
+                renderFinalSuggestion(diagnosis, mainProduct, upsellProduct);
 
-            // Render UI
-            const suggestionBox = document.getElementById('ai-suggestion');
-            suggestionBox.innerHTML = `
-                <div style="margin-top:15px;">
-                    <p style="color:#666; margin-bottom:10px;">${diagnosis.msg}</p>
-                    <div style="background:#fff5f8; padding:15px; border-radius:15px; border:1px solid #ffe4e6;">
-                        <h3 style="color:#ff6b6b; font-size:1.1rem; margin-bottom:5px;">${diagnosis.product}</h3>
-                        <p style="font-size:0.9rem; font-style:italic; color:#888; margin-bottom:10px;">"${diagnosis.advice}"</p>
-                        <a href="https://vt.tiktok.com/ZSN..." class="buy-btn">MUA NGAY - ${diagnosis.price}</a>
-                    </div>
-                </div>
-            `;
+            } catch (e) {
+                console.error(e);
+                statusText.innerText = "⚠️ Lỗi đọc kho hàng.";
+            }
 
-            // Scroll to results
+            scanLine.style.display = 'none';
+            statusText.innerText = "🎉 Xong rồi nè!";
+            results.style.display = 'block';
             results.scrollIntoView({ behavior: 'smooth' });
         }
 
-        initCamera();
+        // --- HELPERS ---
+        function simulateSmartDiagnosis() {
+            // Random bệnh nhưng có logic (Weighted random)
+            const types = ['Acne', 'Oily', 'Dry', 'Sensitive'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let scores = { moist: 50, acne: 10 };
+
+            if (type === 'Acne') { scores.acne = 85; scores.moist = 40; }
+            if (type === 'Dry') { scores.moist = 20; scores.acne = 10; }
+
+            return { type, scores, msg: getMessage(type) };
+        }
+
+        function getMessage(type) {
+            const msgs = {
+                'Acne': 'Da đang kích ứng và có mụn viêm.',
+                'Dry': 'Cảnh báo: Độ ẩm dưới mức 30%!',
+                'Oily': 'Tuyến dầu hoạt động quá mức.',
+                'Sensitive': 'Da mỏng, dễ đỏ rát.'
+            };
+            return msgs[type] || 'Da ổn định.';
+        }
+
+        function displayScores(diag) {
+            const sMoist = document.getElementById('score-moist');
+            const sAcne = document.getElementById('score-acne');
+
+            sMoist.style = `--p: ${diag.scores.moist}%;`;
+            sMoist.setAttribute('data-val', diag.scores.moist + '%');
+            document.getElementById('txt-moist').innerText = diag.scores.moist < 30 ? "Thiếu nước trầm trọng" : "Ổn định";
+
+            sAcne.style = `--p: ${diag.scores.acne}%;`;
+            sAcne.setAttribute('data-val', diag.scores.acne > 50 ? 'Cao' : 'Thấp');
+            if (diag.scores.acne > 50) sAcne.style.setProperty('--accent', '#ff4757');
+        }
+
+        function renderFinalSuggestion(diag, main, upsell) {
+            const container = document.getElementById('ai-suggestion');
+            let html = `
+                <div class="recommendation">
+                    <p style="color:#d32f2f; margin-bottom:10px; font-weight:bold;">⚠️ ${diag.msg}</p>
+                    
+                    <div style="text-align:left; margin-bottom:15px;">
+                        <h3 style="color:var(--accent); font-size:1.1rem;">1. Giải pháp chính</h3>
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <img src="${main.image}" style="width:60px; height:60px; border-radius:10px; object-fit:cover;">
+                            <div>
+                                <div style="font-weight:bold; font-size:0.9rem;">${main.name}</div>
+                                <div style="font-size:0.8rem; color:#666;">"${main.advice}"</div>
+                                <a href="${main.link}" target="_blank" style="color:var(--primary); font-weight:bold; font-size:0.8rem;">👉 Mua ngay</a>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            // Render Upsell Block
+            if (upsell && upsell.id !== main.id) {
+                html += `
+                    <div style="text-align:left; border-top:1px dashed #eee; padding-top:15px;">
+                        <span class="upsell-badge">GỢI Ý COMBO</span>
+                        <h3 style="color:#333; font-size:1rem;">+ Thêm bước làm sạch sâu</h3>
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <img src="${upsell.image}" style="width:50px; height:50px; border-radius:10px; object-fit:cover;">
+                            <div>
+                                <div style="font-weight:bold; font-size:0.85rem;">${upsell.name}</div>
+                                <a href="${upsell.link}" target="_blank" style="color:var(--primary); font-weight:bold; font-size:0.8rem;">👉 Thêm vào giỏ</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <a href="${main.link}" target="_blank" class="buy-btn" style="width:100%;">🔥 MUA COMBO TRỊ GIÁ 259K</a>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Placeholder function for Real API
+        async function callExternalAI(imageBase64) {
+            // const apiKey = "YOUR_PERFECT_CORP_KEY";
+            // const res = await fetch('https://api.perfectcorp.com/...', { ... });
+            // return res.json();
+            return null;
+        }
     </script>
 </body>
 
