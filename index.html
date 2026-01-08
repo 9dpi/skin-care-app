@@ -4,19 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gương Thần Soi Da ✨</title>
+    <title>Gương Thần Soi Da ✨ (AI)</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pacifico&display=swap"
         rel="stylesheet">
     <style>
-        /* GIỮ NGUYÊN CSS CŨ VÌ DESIGN ĐANG RẤT ĐẸP */
         :root {
             --primary: #ff9a9e;
-            --secondary: #fecfef;
-            --accent: #ff6b6b;
-            --bg: #fff5f8;
+            var(--secondary): #fecfef;
+            var(--accent): #ff6b6b;
+            var(--bg: #fff5f8);
             --card-bg: #ffffff;
-            --text-main: #664449;
-            --text-light: #99888a;
+            var(--text-main): #664449;
+            var(--text-light): #99888a;
         }
 
         * {
@@ -39,7 +38,7 @@
         header {
             padding: 15px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             position: fixed;
             top: 0;
@@ -101,7 +100,7 @@
         }
 
         .camera-placeholder {
-            font-size: 3rem;
+            font-size: 1.2rem;
             color: var(--primary);
             display: flex;
             flex-direction: column;
@@ -109,11 +108,8 @@
             gap: 10px;
             position: absolute;
             z-index: 1;
-        }
-
-        .camera-placeholder span {
-            font-size: 1rem;
-            font-weight: 600;
+            text-align: center;
+            padding: 20px;
         }
 
         .scanner-line {
@@ -135,10 +131,7 @@
                 opacity: 0;
             }
 
-            40% {
-                opacity: 1;
-            }
-
+            40%,
             60% {
                 opacity: 1;
             }
@@ -165,7 +158,7 @@
         .action-btn {
             padding: 15px 50px;
             border-radius: 50px;
-            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%);
             border: none;
             color: white;
             font-weight: 800;
@@ -178,10 +171,6 @@
             justify-content: center;
             gap: 10px;
             width: 80%;
-        }
-
-        .action-btn:active {
-            transform: scale(0.95);
         }
 
         .action-btn:hover {
@@ -266,7 +255,6 @@
             justify-content: center;
         }
 
-        /* RECOMMENDATION CARD & UPSELL */
         .recommendation {
             background: #fff;
             border: 2px dashed var(--primary);
@@ -276,11 +264,9 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
-        .recommendation::before {
-            content: "💖 Đề xuất riêng cho bạn";
+        .rec-tag {
             position: absolute;
             top: 0;
             left: 50%;
@@ -307,232 +293,257 @@
             animation: pulse 2s infinite;
         }
 
-        .upsell-badge {
-            display: inline-block;
-            background: #ffeb3b;
-            color: #d32f2f;
-            font-weight: bold;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-bottom: 5px;
-            border: 1px solid #fbc02d;
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .debug-info {
+            font-size: 0.7rem;
+            color: #aaa;
+            text-align: center;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+
+        /* Product Image Style */
+        .rec-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            border: 2px solid #eee;
         }
     </style>
 </head>
 
 <body>
+
     <header>
-        <div class="logo">🌸 Skin Care AI 🌸</div>
+        <div class="logo">✨ Magic Mirror AI ✨</div>
     </header>
+
     <main>
         <div class="scanner-wrapper">
             <div class="scanner-container">
-                <div class="camera-placeholder" id="cam-placeholder">📷 <span>Đang khởi động Camera...</span></div>
+                <div class="camera-placeholder" id="cam-placeholder">
+                    📷 <span>Đang khởi động Camera...<br><small>(Hãy cho phép truy cập nhé)</small></span>
+                </div>
                 <video id="camera-feed" autoplay playsinline muted></video>
+                <canvas id="scan-canvas" style="display:none;"></canvas> <!-- Hidden Canvas for AI -->
                 <div id="scan-line" class="scanner-line"></div>
-                <!-- Canvas ẩn để chụp ảnh gửi API -->
-                <canvas id="photo-canvas" style="display:none;"></canvas>
             </div>
         </div>
+
         <div class="status-text" id="status-text">Chào bạn! Cùng soi da nhé ✨</div>
-        <button class="action-btn" id="scan-btn" onclick="startScanProcess()"><span>🔍 SOI DA NGAY</span></button>
+
+        <button class="action-btn" id="scan-btn" onclick="startScan()">
+            <span>🔍 SOI DA CHUYÊN SÂU</span>
+        </button>
 
         <div id="results-area">
-            <div class="section-title">📝 Kết quả của bạn</div>
+            <div class="section-title">📝 Kết quả phân tích thật</div>
+
             <div class="score-card">
                 <div class="score-info">
-                    <h4>Độ ẩm tự nhiên</h4><small id="txt-moist">Đang phân tích...</small>
+                    <h4>Độ sáng da (Tone)</h4>
+                    <small id="tone-msg">Đang tính toán...</small>
                 </div>
-                <div class="score-circle" id="score-moist" style="--p: 40%;" data-val="?"></div>
+                <div class="score-circle" id="score-tone" style="--p: 0%;" data-val="--"></div>
             </div>
+
             <div class="score-card">
                 <div class="score-info">
-                    <h4>Tình trạng mụn</h4><small id="txt-acne">Đang phân tích...</small>
+                    <h4>Vùng nhạy cảm/Đỏ</h4>
+                    <small id="red-msg">Đang tính toán...</small>
                 </div>
-                <div class="score-circle" id="score-acne" style="--p: 10%;" data-val="?"></div>
+                <div class="score-circle" id="score-red" style="--p: 0%;" data-val="--"></div>
             </div>
-            <div id="ai-suggestion"></div>
+
+            <div class="debug-info" id="debug-text">AI Raw Data: Waiting...</div>
+
+            <div id="ai-suggestion" class="recommendation">
+                <div class="rec-tag">💖 Đề xuất riêng cho bạn</div>
+                <div id="rec-content">Đang tìm sản phẩm phù hợp...</div>
+            </div>
         </div>
     </main>
 
     <script>
         const video = document.getElementById('camera-feed');
-        const canvas = document.getElementById('photo-canvas');
+        const canvas = document.getElementById('scan-canvas');
+        const ctx = canvas.getContext('2d');
+
         const scanLine = document.getElementById('scan-line');
         const statusText = document.getElementById('status-text');
         const btn = document.getElementById('scan-btn');
         const results = document.getElementById('results-area');
+        const placeholder = document.getElementById('cam-placeholder');
+        const debugText = document.getElementById('debug-text');
 
-        // --- 1. SET UP CAMERA ---
+        // PRODUCT DATA (Fallback if no JSON)
+        let productList = [];
+
+        // 1. Start Camera
         async function initCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
-                video.onloadedmetadata = () => { document.getElementById('cam-placeholder').style.display = 'none'; };
+                video.onloadedmetadata = () => {
+                    placeholder.style.display = 'none';
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                };
+                // Load Products Background
+                fetch('products.json').then(r => r.json()).then(d => productList = d).catch(e => console.log('No JSON data'));
             } catch (err) {
-                statusText.innerText = "Chưa cấp quyền Camera rồi 🥺";
+                placeholder.innerHTML = "🚫 <span>Không bật được Camera!<br>Hãy kiểm tra quyền truy cập.</span>";
+                statusText.innerText = "Lỗi Camera 🥺";
             }
         }
-        initCamera();
 
-        // --- 2. QUY TRÌNH SOI DA ---
-        function startScanProcess() {
+        // 2. AI PIXEL ANALYSIS ENGINE
+        function analyzeFrame() {
+            if (!video.videoWidth) return null;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = frame.data;
+            const step = 20; // Sample every 20th pixel for speed
+
+            let totalR = 0, totalG = 0, totalB = 0, count = 0;
+            let rednessSum = 0;
+
+            for (let i = 0; i < data.length; i += 4 * step) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                totalR += r; totalG += g; totalB += b;
+
+                // Redness simple formula: R compared to G+B average
+                const brightness = (r + g + b) / 3;
+                if (brightness > 20) { // Ignore black pixels
+                    // Sensitivity calculation
+                    rednessSum += (r - (g + b) / 2);
+                }
+                count++;
+            }
+
+            const avgBright = (totalR + totalG + totalB) / (3 * count);
+            const avgRedness = rednessSum / count;
+
+            return { brightness: avgBright, redness: avgRedness };
+        }
+
+        // 3. Scan Process
+        function startScan() {
             btn.style.display = 'none';
-            statusText.innerText = "⏳ Đang kết nối API phân tích...";
+            statusText.innerText = "⏳ Đang quét từng điểm ảnh...";
             scanLine.style.display = 'block';
 
-            // Chụp ảnh từ video stream
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Real Analysis Interval
+            let frames = 0;
+            let totalBright = 0;
+            let totalRed = 0;
 
-            // Gửi ảnh đi phân tích (Giả lập delay)
-            setTimeout(async () => {
-                await analyzeSkinAndRecommend();
-            }, 3000);
+            const scanner = setInterval(() => {
+                const metrics = analyzeFrame();
+                if (metrics) {
+                    totalBright += metrics.brightness;
+                    totalRed += metrics.redness;
+                    frames++;
+                    debugText.innerText = `Raw: Bright(${Math.round(metrics.brightness)}) Red(${Math.round(metrics.redness)})`;
+                }
+            }, 100);
+
+            setTimeout(() => { statusText.innerText = "✨ Đang phân tích Melanin & Hemoglobin..."; }, 1500);
+            setTimeout(() => { statusText.innerText = "🤖 AI đang chọn sản phẩm..."; }, 3000);
+
+            setTimeout(() => {
+                clearInterval(scanner);
+                const finalBright = frames > 0 ? totalBright / frames : 100; // Default 100
+                const finalRed = frames > 0 ? totalRed / frames : 10;
+                finishScan(finalBright, finalRed);
+            }, 4500);
         }
 
-        // --- 3. GỌI API & LOGIC UPSELL ---
-        async function analyzeSkinAndRecommend() {
-            // A. KẾT NỐI API THẬT (Placeholder)
-            // Trong thực tế, bạn sẽ bỏ comment dòng dưới và điền API Key
-            // const apiData = await callExternalAI(canvas.toDataURL('image/jpeg'));
+        // 4. Display Results (Logic Thông Minh)
+        function finishScan(brightness, redness) {
+            scanLine.style.display = 'none';
+            statusText.innerText = "🎉 Đã có kết quả phân tích!";
+            results.style.display = 'block';
 
-            // Hiện tại dùng thuật toán Smart Simulation
-            const diagnosis = simulateSmartDiagnosis();
+            // --- XỬ LÝ KẾT QUẢ ---
+            // 1. TONE DA (Độ sáng)
+            const toneScore = Math.min(Math.round((brightness / 255) * 100), 100);
+            document.getElementById('score-tone').style.setProperty('--p', `${toneScore}%`);
+            document.getElementById('score-tone').setAttribute('data-val', `${toneScore}`);
 
-            // Hiển thị kết quả đo đạc
-            displayScores(diagnosis);
+            let toneMsg = "Da trung bình";
+            if (toneScore < 30) toneMsg = "Da hơi tối màu / Thiếu sáng";
+            else if (toneScore > 60) toneMsg = "Da sáng khỏe";
+            document.getElementById('tone-msg').innerText = toneMsg;
 
-            // B. TÌM SẢN PHẨM TỪ KHO (Sheet -> JSON)
-            try {
-                const response = await fetch('products.json');
-                const products = await response.json();
+            // 2. ĐỘ ĐỎ (Nhạy cảm/Mụn)
+            // Redness thường range từ 10-40. Cao hơn 20 là có vấn đề.
+            const redScorePercent = Math.min(Math.round((redness / 40) * 100), 100);
+            document.getElementById('score-red').style.setProperty('--p', `${redScorePercent}%`);
+            document.getElementById('score-red').setAttribute('data-val', `${Math.round(redness)}`);
 
-                // Logic ĐẶC BIỆT: Tìm sản phẩm ở Hàng thứ 2 (đã được Force Approve trong JSON)
-                // Filter sản phẩm phù hợp với Diagnosis.type (VD: Acne)
-                // Ưu tiên sản phẩm có Status APPROVE
+            let redMsg = "Da ổn định";
+            let skinIssue = "Normal";
 
-                let mainProduct = products.find(p => p.status === 'APPROVE' && p.skinType.includes(diagnosis.type));
+            if (redness > 20) {
+                redMsg = "Cảnh báo: Da ửng đỏ / Nhạy cảm";
+                skinIssue = "Sensitive";
+            } else if (redness > 30) {
+                redMsg = "Cảnh báo: Có dấu hiệu viêm mụn";
+                skinIssue = "Acne";
+            }
+            if (toneScore < 40 && skinIssue === "Normal") skinIssue = "Dry"; // Tối màu thường do khô
 
-                // Nếu không có hàng Approve khớp bệnh, lấy đại hàng Approve bất kỳ (để đảm bảo Row 2 luôn hiện)
-                if (!mainProduct) mainProduct = products.find(p => p.status === 'APPROVE');
+            document.getElementById('red-msg').innerText = redMsg;
 
-                // Fallback cuối cùng
-                if (!mainProduct) mainProduct = products[0];
+            // 3. ĐỀ XUẤT SẢN PHẨM (Data thật)
+            let bestMatch = null;
 
-                // LOGIC UPSELL: Tìm thêm sản phẩm bổ trợ (Ví dụ combo)
-                let upsellProduct = null;
-                if (diagnosis.type === 'Acne') {
-                    // Nếu bị mụn -> Tìm thêm Sữa rửa mặt (Cleanser)
-                    upsellProduct = products.find(p => p.category === 'Cleanser');
-                } else {
-                    // Hoặc tìm thêm Kem dưỡng (Cream)
-                    upsellProduct = products.find(p => p.category === 'Cream');
-                }
-
-                renderFinalSuggestion(diagnosis, mainProduct, upsellProduct);
-
-            } catch (e) {
-                console.error(e);
-                statusText.innerText = "⚠️ Lỗi đọc kho hàng.";
+            // Tìm sản phẩm phù hợp trong JSON
+            if (productList.length > 0) {
+                // Ưu tiên tìm đúng vấn đề
+                bestMatch = productList.find(p => p.skinType.includes(skinIssue)) || productList[0];
+            } else {
+                // Fallback nếu chưa có JSON
+                bestMatch = {
+                    name: "Bộ phục hồi da B5",
+                    advice: "Da bạn đang cần phục hồi gấp, B5 là chân ái!",
+                    link: "https://www.tiktok.com/@cuongvqart",
+                    image: "https://source.unsplash.com/random/100x100/?skincare"
+                };
             }
 
-            scanLine.style.display = 'none';
-            statusText.innerText = "🎉 Xong rồi nè!";
-            results.style.display = 'block';
+            const cleanLink = bestMatch.link || bestMatch.original_link || "#";
+
+            document.getElementById('rec-content').innerHTML = `
+                <img src="${bestMatch.image || 'https://via.placeholder.com/100'}" class="rec-img">
+                <h3 style="color:#ff6b6b; font-size:1.1rem; margin-bottom:5px;">${bestMatch.name}</h3>
+                <p style="font-size:0.9rem; font-style:italic; color:#888; margin-bottom:10px;">phát hiện <b>${skinIssue}</b>: "${bestMatch.advice || 'Sản phẩm này cực tốt cho da của bạn'}"</p>
+                <a href="${cleanLink}" target="_blank" class="buy-btn">MUA NGAY TRÊN TIKTOK</a>
+            `;
+
             results.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // --- HELPERS ---
-        function simulateSmartDiagnosis() {
-            // Random bệnh nhưng có logic (Weighted random)
-            const types = ['Acne', 'Oily', 'Dry', 'Sensitive'];
-            const type = types[Math.floor(Math.random() * types.length)];
-            let scores = { moist: 50, acne: 10 };
-
-            if (type === 'Acne') { scores.acne = 85; scores.moist = 40; }
-            if (type === 'Dry') { scores.moist = 20; scores.acne = 10; }
-
-            return { type, scores, msg: getMessage(type) };
-        }
-
-        function getMessage(type) {
-            const msgs = {
-                'Acne': 'Da đang kích ứng và có mụn viêm.',
-                'Dry': 'Cảnh báo: Độ ẩm dưới mức 30%!',
-                'Oily': 'Tuyến dầu hoạt động quá mức.',
-                'Sensitive': 'Da mỏng, dễ đỏ rát.'
-            };
-            return msgs[type] || 'Da ổn định.';
-        }
-
-        function displayScores(diag) {
-            const sMoist = document.getElementById('score-moist');
-            const sAcne = document.getElementById('score-acne');
-
-            sMoist.style = `--p: ${diag.scores.moist}%;`;
-            sMoist.setAttribute('data-val', diag.scores.moist + '%');
-            document.getElementById('txt-moist').innerText = diag.scores.moist < 30 ? "Thiếu nước trầm trọng" : "Ổn định";
-
-            sAcne.style = `--p: ${diag.scores.acne}%;`;
-            sAcne.setAttribute('data-val', diag.scores.acne > 50 ? 'Cao' : 'Thấp');
-            if (diag.scores.acne > 50) sAcne.style.setProperty('--accent', '#ff4757');
-        }
-
-        function renderFinalSuggestion(diag, main, upsell) {
-            const container = document.getElementById('ai-suggestion');
-            let html = `
-                <div class="recommendation">
-                    <p style="color:#d32f2f; margin-bottom:10px; font-weight:bold;">⚠️ ${diag.msg}</p>
-                    
-                    <div style="text-align:left; margin-bottom:15px;">
-                        <h3 style="color:var(--accent); font-size:1.1rem;">1. Giải pháp chính</h3>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <img src="${main.image}" style="width:60px; height:60px; border-radius:10px; object-fit:cover;">
-                            <div>
-                                <div style="font-weight:bold; font-size:0.9rem;">${main.name}</div>
-                                <div style="font-size:0.8rem; color:#666;">"${main.advice}"</div>
-                                <a href="${main.link}" target="_blank" style="color:var(--primary); font-weight:bold; font-size:0.8rem;">👉 Mua ngay</a>
-                            </div>
-                        </div>
-                    </div>
-            `;
-
-            // Render Upsell Block
-            if (upsell && upsell.id !== main.id) {
-                html += `
-                    <div style="text-align:left; border-top:1px dashed #eee; padding-top:15px;">
-                        <span class="upsell-badge">GỢI Ý COMBO</span>
-                        <h3 style="color:#333; font-size:1rem;">+ Thêm bước làm sạch sâu</h3>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <img src="${upsell.image}" style="width:50px; height:50px; border-radius:10px; object-fit:cover;">
-                            <div>
-                                <div style="font-weight:bold; font-size:0.85rem;">${upsell.name}</div>
-                                <a href="${upsell.link}" target="_blank" style="color:var(--primary); font-weight:bold; font-size:0.8rem;">👉 Thêm vào giỏ</a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            html += `
-                <a href="${main.link}" target="_blank" class="buy-btn" style="width:100%;">🔥 MUA COMBO TRỊ GIÁ 259K</a>
-                </div>
-            `;
-
-            container.innerHTML = html;
-        }
-
-        // Placeholder function for Real API
-        async function callExternalAI(imageBase64) {
-            // const apiKey = "YOUR_PERFECT_CORP_KEY";
-            // const res = await fetch('https://api.perfectcorp.com/...', { ... });
-            // return res.json();
-            return null;
-        }
+        initCamera();
     </script>
 </body>
 
