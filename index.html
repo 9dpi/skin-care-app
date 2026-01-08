@@ -648,7 +648,7 @@
 
             document.getElementById('rec-content').innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center;">
-                    <img src="${displayImg}" class="rec-img">
+                    <img src="${displayImg}" class="rec-img" onerror="this.onerror=null; this.src='product_fallback.jpg';">
                     <div class="rec-title">${bestMatch.name}</div>
                     <div class="rec-desc">
                         <span>💡 AI Phân tích:</span> <b>${skinIssue}</b><br>
