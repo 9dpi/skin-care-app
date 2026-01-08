@@ -1,38 +1,46 @@
 [
   {
-    "id": "373235382",
-    "name": "Cấp ẩm phục hồi da với B5 SMAS thần thánh cùng CuongVQ",
-    "ingredients": "B5",
-    "skinType": "Sensitive",
-    "advice": "Cấp ẩm sâu với Vitamin B5, cứu tinh cho da khô nẻ.",
+    "id": "prod_1",
+    "name": "Serum B5 Phục Hồi & Cấp Ẩm Tunemakers",
+    "skinType": "Dry;Sensitive;Normal",
+    "category": "Moisturizer",
+    "image": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=600&auto=format&fit=crop",
     "link": "https://www.tiktok.com/@cuongvqart",
-    "original_link": "https://www.tiktok.com/@cuongvqart",
-    "status": "APPROVE",
-    "category": "General",
-    "image": "https://source.unsplash.com/random/300x300/?skincare,product&sig=5"
+    "original_link": "https://www.tiktok.com/@cuongvqart/video/7313840781700681006",
+    "advice": "Da bạn đang khát nước đó! Em B5 này sẽ cấp cứu làn da khô ráp ngay lập tức, làm dịu da thần tốc.",
+    "status": "active"
   },
   {
-    "id": "533856267",
-    "name": "Kem chống nắng Martiderm xịn xò bảo vệ da tuyệt đối",
-    "ingredients": "Sunscreen",
-    "skinType": "Unknown",
-    "advice": "Sản phẩm đa năng chứa Sunscreen, dùng được cho mọi loại da.",
+    "id": "prod_2",
+    "name": "Chấm Mụn Thần Thánh Bye Bye Acne",
+    "skinType": "Acne;Oily;Sensitive",
+    "category": "Treatment",
+    "image": "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=600&auto=format&fit=crop",
     "link": "https://www.tiktok.com/@cuongvqart",
-    "original_link": "https://www.tiktok.com/@cuongvqart",
-    "status": "APPROVE",
-    "category": "Cream",
-    "image": "https://source.unsplash.com/random/300x300/?skincare,product&sig=8"
+    "original_link": "https://www.tiktok.com/@cuongvqart/video/7313840781700681006",
+    "advice": "Đừng lo về mấy đốm mụn! Chỉ cần chấm em này qua đêm là xẹp ngay, không bong tróc.",
+    "status": "active"
   },
   {
-    "id": "601067100",
-    "name": "Kem chống nắng Martiderm xịn xò bảo vệ da tuyệt đối",
-    "ingredients": "Sunscreen",
-    "skinType": "Unknown",
-    "advice": "Sản phẩm đa năng chứa Sunscreen, dùng được cho mọi loại da.",
+    "id": "prod_3",
+    "name": "Kem Dưỡng Trắng Mờ Thâm Vitamin C",
+    "skinType": "Normal;Combination;Dry",
+    "category": "Whitening",
+    "image": "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?q=80&w=600&auto=format&fit=crop",
     "link": "https://www.tiktok.com/@cuongvqart",
-    "original_link": "https://www.tiktok.com/@cuongvqart",
-    "status": "APPROVE",
-    "category": "Cream",
-    "image": "https://source.unsplash.com/random/300x300/?skincare,product&sig=7"
+    "original_link": "https://www.tiktok.com/@cuongvqart/video/7313840781700681006",
+    "advice": "Muốn da glow chuẩn Hàn? Em kem dưỡng Vitamin C này sinh ra là dành cho bạn.",
+    "status": "active"
+  },
+  {
+    "id": "prod_4",
+    "name": "Sữa Rửa Mặt Dịu Nhẹ Low pH",
+    "skinType": "Oily;Normal;Sensitive",
+    "category": "Cleanser",
+    "image": "https://images.unsplash.com/photo-1556228552-523cd1146c51?q=80&w=600&auto=format&fit=crop",
+    "link": "https://www.tiktok.com/@cuongvqart",
+    "original_link": "https://www.tiktok.com/@cuongvqart/video/7313840781700681006",
+    "advice": "Bước làm sạch cực quan trọng! Em này sạch sâu mà không hề khô da chút nào.",
+    "status": "active"
   }
 ]
