@@ -161,7 +161,6 @@
             }
         }
 
-        /* NEW PROGRESS BAR (BELOW BUTTON) */
         .progress-container {
             width: 100%;
             margin-top: 20px;
@@ -331,31 +330,35 @@
         /* RECOMMENDATION CARD PREMIUM */
         .recommendation {
             background: linear-gradient(to bottom, #fff, #fff5f5);
-            border: 2px solid #ffdde1;
-            padding: 25px 15px;
+            border: 1px solid #ffdde1;
+            padding: 30px 15px 20px 15px;
+            /* Tăng padding top để nhãn không bị che */
             border-radius: 25px;
-            margin-top: 25px;
+            margin-top: 30px;
             text-align: center;
             position: relative;
-            overflow: visible;
-            /* Cho phép tag nổi lên trên */
             width: 100%;
-            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            /* Bóng mờ nhẹ hơn */
         }
 
+        /* Chỉnh sửa thành Label/Tag phẳng */
         .rec-tag {
             position: absolute;
-            top: -15px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(90deg, #ff9a9e, #ff6b6b);
-            color: white;
-            padding: 8px 25px;
-            font-size: 0.95rem;
+            background: #fff0f3;
+            /* Nền nhạt */
+            color: #d63031;
+            border: 1px solid #d63031;
+            padding: 5px 20px;
+            font-size: 0.75rem;
             font-weight: 800;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-            white-space: nowrap;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
         }
 
         .buy-btn {
@@ -366,13 +369,18 @@
             color: white;
             text-decoration: none;
             border-radius: 50px;
-            font-weight: 900;
-            font-size: 1.1rem;
-            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
-            animation: pulse 1.5s infinite;
+            font-weight: 800;
+            font-size: 0.95rem;
+            /* Giảm size chữ */
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.3);
+            animation: pulse 2s infinite;
             text-transform: uppercase;
             letter-spacing: 1px;
             width: 100%;
+            white-space: nowrap;
+            /* Cấm xuống dòng */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         @keyframes pulse {
@@ -391,23 +399,24 @@
 
         .rec-img {
             width: 100%;
-            max-height: 200px;
+            height: 200px;
             object-fit: cover;
             border-radius: 15px;
             margin-bottom: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: #eee;
         }
 
         .rec-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: #d63031;
             font-weight: 800;
             margin-bottom: 8px;
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         .rec-desc {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #555;
             margin-bottom: 15px;
             line-height: 1.5;
@@ -487,7 +496,7 @@
             </div>
 
             <div id="ai-suggestion" class="recommendation">
-                <div class="rec-tag">💖 Đề xuất riêng cho bạn</div>
+                <div class="rec-tag">🏆 CHUYÊN GIA KHUYÊN DÙNG</div>
                 <div id="rec-content">
                     <p>Đang tìm sản phẩm phù hợp...</p>
                 </div>
@@ -619,23 +628,21 @@
                 if (!bestMatch) bestMatch = productList[Math.floor(Math.random() * productList.length)];
             }
 
-            // Fallback Image Premium từ Unsplash
-            const premiumFallbackImg = "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?q=80&w=600&auto=format&fit=crop";
+            // Dùng ảnh nội bộ ổn định => "product_fallback.jpg"
+            const stableFallbackImg = "./product_fallback.jpg";
 
-            // Fallback Product
             if (!bestMatch) {
                 bestMatch = {
                     name: "Combo Phục Hồi & Căng Bóng Da",
                     advice: "Giải pháp toàn diện giúp da bạn sáng khỏe, hết lo âu.",
                     link: "https://www.tiktok.com/@cuongvqart",
-                    image: premiumFallbackImg,
+                    image: stableFallbackImg,
                     original_link: "https://www.tiktok.com/@cuongvqart"
                 };
             }
 
-            // Logic thay ảnh placeholder xấu xí bằng ảnh đẹp
             let displayImg = bestMatch.image;
-            if (!displayImg || displayImg.includes("via.placeholder")) displayImg = premiumFallbackImg;
+            if (!displayImg || displayImg.includes("via.placeholder")) displayImg = stableFallbackImg;
 
             const cleanLink = bestMatch.link || bestMatch.original_link || "#";
 
@@ -647,12 +654,9 @@
                         <span>💡 AI Phân tích:</span> <b>${skinIssue}</b><br>
                         <i>"${bestMatch.advice || 'Sản phẩm này cực hợp để cải thiện tình trạng da hiện tại của bạn.'}"</i>
                     </div>
-                    <a href="${cleanLink}" target="_blank" class="buy-btn">🔥 XEM CHI TIẾT & MUA NGAY 🔥</a>
+                    <a href="${cleanLink}" target="_blank" class="buy-btn">👉 BẤM ĐỂ NHẬN ƯU ĐÃI NGAY</a>
                 </div>
             `;
-
-            // Update Tag Text
-            document.querySelector('.rec-tag').innerText = "🏆 GIẢI PHÁP CHUYÊN GIA KHUYÊN DÙNG";
 
             results.scrollIntoView({ behavior: 'smooth' });
         }
