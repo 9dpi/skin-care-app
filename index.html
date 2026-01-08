@@ -506,8 +506,19 @@
                     📷 <span>Đang khởi động Camera...<br><small>(Hãy cho phép truy cập nhé)</small></span>
                 </div>
                 <video id="camera-feed" autoplay playsinline muted></video>
-                <canvas id="scan-canvas" style="display:none;"></canvas>
+                <canvas id="scan-canvas"
+                    style="display:none; width: 100%; height: 100%; object-fit: cover; border-radius: 30px;"></canvas>
                 <div id="scan-line" class="scanner-line"></div>
+
+                <!-- RESCAN OVERLAY -->
+                <div id="rescan-ui"
+                    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:50; flex-direction:column; align-items:center; justify-content:center; border-radius:30px;">
+                    <button onclick="resetScan()"
+                        style="background:white; color:var(--accent); border:none; padding:15px 30px; border-radius:50px; font-weight:800; font-size:1.2rem; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.3); display:flex; align-items:center; gap:10px;">
+                        🔄 SOI LẠI
+                    </button>
+                    <small style="color:white; margin-top:10px; font-weight:600;">(Đã lưu kết quả)</small>
+                </div>
             </div>
 
             <div class="progress-container" id="progress-area">
@@ -588,12 +599,19 @@
         const progressArea = document.getElementById('progress-area');
         const progressFill = document.getElementById('progress-fill');
         const progressText = document.getElementById('progress-text');
+        const rescanUI = document.getElementById('rescan-ui');
+
+        // GOOGLE SCRIPT URL (Sẽ điền sau khi tạo script)
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_YOUR_SCRIPT_ID_HERE/exec";
+        // Thay YOUR_SCRIPT_ID_HERE bằng ID thật sau khi deploy
 
         let productList = [];
+        let streamObj = null;
 
         async function initCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                streamObj = stream;
                 video.srcObject = stream;
                 video.onloadedmetadata = () => {
                     placeholder.style.display = 'none';
@@ -697,6 +715,22 @@
             }, 100);
         }
 
+        function resetScan() {
+            rescanUI.style.display = 'none';
+            canvas.style.display = 'none';
+            video.style.display = 'block';
+            results.style.display = 'none';
+            btn.style.display = 'flex'; // Hiện lại nút scan
+            statusText.style.display = 'block';
+            statusText.innerText = "Sẵn sàng quét lại!";
+
+            // Reset Progress
+            progressFill.style.width = "0%";
+            progressText.innerText = "0%";
+
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+
         function updateScore(id, val, percent) {
             const el = document.getElementById(id);
             el.style.setProperty('--p', `${percent}%`);
@@ -704,12 +738,21 @@
         }
 
         function finishScan(data) {
+            // 1. UI Changes for Snapshot
             scanLine.style.display = 'none';
             progressArea.style.display = 'none';
+
+            // Chụp ảnh tĩnh lên Canvas và ẩn Video
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            video.style.display = 'none';
+            canvas.style.display = 'block';
+            rescanUI.style.display = 'flex'; // Hiện nút Soi Lại
+
             statusText.style.display = 'block';
             statusText.innerText = "✨ Đã có kết quả phân tích 4D! ✨";
             results.style.display = 'block';
 
+            // ... (Metrics Calculation - Keep Existing Logic) ...
             // 1. TONE
             const toneSc = Math.min(Math.round((data.bright / 255) * 100), 100);
             updateScore('score-tone', toneSc, toneSc);
@@ -721,24 +764,27 @@
             updateScore('score-red', redSc, redPercent);
             document.getElementById('red-msg').innerText = redSc > 20 ? "Cảnh báo viêm đỏ" : "Da ổn định";
 
-            // 3. SMOOTHNESS (Mới)
+            // 3. SMOOTHNESS
             const smoothSc = Math.round(data.smooth);
             updateScore('score-smooth', smoothSc, smoothSc);
             document.getElementById('smooth-msg').innerText = smoothSc < 50 ? "Lỗ chân lông to" : "Bề mặt mịn màng";
 
-            // 4. OIL (Mới)
+            // 4. OIL
             const oilSc = Math.round(data.oil);
             updateScore('score-oil', oilSc, oilSc);
             document.getElementById('oil-msg').innerText = oilSc > 40 ? "Da bóng dầu" : (oilSc < 10 ? "Da hơi khô" : "Độ dầu chuẩn");
 
             // Logic chẩn đoán tổng hợp
             let skinIssue = "Normal";
-            if (redSc > 25) skinIssue = "Sensitive"; // Ưu tiên viêm
-            else if (oilSc > 50) skinIssue = "Oily"; // Dầu nhiều
-            else if (smoothSc < 40) skinIssue = "Dry"; // Sần sùi thường là khô
-            else if (toneSc < 40) skinIssue = "Whitening"; // Tối màu cần trắng
+            if (redSc > 25) skinIssue = "Sensitive";
+            else if (oilSc > 50) skinIssue = "Oily";
+            else if (smoothSc < 40) skinIssue = "Dry";
+            else if (toneSc < 40) skinIssue = "Whitening";
 
-            // Danh sách các câu Hook hấp dẫn (Thay đổi ngẫu nhiên)
+            // Upload Data to Google
+            uploadDataToGoogle(data, skinIssue);
+
+            // ... (Marketing Hooks & Product Recs - Keep Existing) ...
             const marketingHooks = [
                 "Sản phẩm này là 'chân ái' cho làn da của bạn lúc này.",
                 "Đừng để làn da phải chờ đợi nữa, cấp cứu ngay thôi!",
@@ -753,10 +799,8 @@
             // Recommend
             let bestMatch = null;
             if (productList && productList.length > 0) {
-                // Mapping logic: Whitening -> Vitamin C, Sensitive -> B5, Oily -> Cleanser
                 let searchKey = skinIssue;
                 if (skinIssue === 'Whitening') searchKey = 'dry;normal';
-
                 bestMatch = productList.find(p => p.skinType && p.skinType.includes(searchKey));
                 if (!bestMatch) bestMatch = productList[Math.floor(Math.random() * productList.length)];
             }
@@ -789,6 +833,34 @@
             `;
 
             results.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function uploadDataToGoogle(metrics, diagnosis) {
+            // Capture image as base64 (remove data:image/jpeg;base64, prefix)
+            const imgBase64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+
+            const payload = {
+                timestamp: new Date().toLocaleString('vi-VN'),
+                metrics: metrics,
+                diagnosis: diagnosis,
+                image: imgBase64,
+                sheetId: "1nBjaX5PBnzP1bitPvqLcbZEOOtrfNAYPdU7Ax-ozMkI", // USER PROVIDED
+                folderId: "1J6KfD3PRp7hzW87BB91u3pSefoD7FnZb" // USER PROVIDED
+            };
+
+            // Gửi dữ liệu đi (Chỉ hoạt động khi có SCRIPT URL)
+            if (GOOGLE_SCRIPT_URL.includes("YOUR_SCRIPT_ID")) {
+                console.log("⚠️ Cần cấu hình Google Apps Script để lưu dữ liệu.", payload);
+                return;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Quan trọng để tránh lỗi CORS
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => console.log("Data sent to Google!"))
+                .catch(err => console.error("Upload error:", err));
         }
 
         initCamera();
