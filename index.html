@@ -290,58 +290,93 @@
 
         .score-card {
             background: var(--card-bg);
-            padding: 15px;
-            border-radius: 20px;
+            padding: 20px 10px;
+            border-radius: 25px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
             border: 2px solid #fff;
             position: relative;
+            transition: transform 0.2s;
+        }
+
+        .score-card:hover {
+            transform: translateY(-5px);
         }
 
         .score-info h4 {
             color: var(--text-main);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            margin-bottom: 2px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: 800;
         }
 
         .score-info small {
             color: var(--text-light);
-            font-size: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
             display: block;
             height: 1.5em;
             line-height: 1.3em;
         }
 
         .score-circle {
-            width: 50px;
-            height: 50px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
-            background: conic-gradient(var(--accent) var(--p), #ffe4e6 0);
+            /* --c là biến màu riêng cho từng ô */
+            background: conic-gradient(var(--c) var(--p), #f0f2f5 0);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            box-shadow: inset 0 0 0 4px white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
+        /* Lớp mặt nạ trắng bên trong */
+        .score-circle::before {
+            content: "";
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        /* Số điểm hiển thị ở giữa */
         .score-circle::after {
             content: attr(data-val);
             position: absolute;
-            color: var(--accent);
-            font-weight: 800;
-            font-size: 0.8rem;
-            background: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: var(--c);
+            font-weight: 900;
+            font-size: 1.5rem;
+            z-index: 2;
         }
+
+        /* MÀU SẮC TỪNG CHỈ SỐ */
+        #score-tone {
+            --c: #ffbe0b;
+        }
+
+        /* Vàng */
+        #score-red {
+            --c: #ff006e;
+        }
+
+        /* Hồng đậm */
+        #score-smooth {
+            --c: #3a86ff;
+        }
+
+        /* Xanh dương */
+        #score-oil {
+            --c: #8338ec;
+        }
+
+        /* Tím */
 
         .recommendation {
             background: linear-gradient(to bottom, #fff, #fff5f5);
