@@ -738,6 +738,18 @@
             else if (smoothSc < 40) skinIssue = "Dry"; // Sần sùi thường là khô
             else if (toneSc < 40) skinIssue = "Whitening"; // Tối màu cần trắng
 
+            // Danh sách các câu Hook hấp dẫn (Thay đổi ngẫu nhiên)
+            const marketingHooks = [
+                "Sản phẩm này là 'chân ái' cho làn da của bạn lúc này.",
+                "Đừng để làn da phải chờ đợi nữa, cấp cứu ngay thôi!",
+                "Bí quyết để có làn da Glass Skin chuẩn Hàn là đây.",
+                "Chỉ cần 2 tuần, bạn sẽ thấy sự thay đổi ngoạn mục.",
+                "Top 1 sản phẩm được Chuyên gia khuyên dùng cho tình trạng này.",
+                "Hàng ngàn khách hàng đã lột xác nhờ combo này.",
+                "Đầu tư cho da là khoản đầu tư thông minh nhất của bạn."
+            ];
+            const randomHook = marketingHooks[Math.floor(Math.random() * marketingHooks.length)];
+
             // Recommend
             let bestMatch = null;
             if (productList && productList.length > 0) {
@@ -752,8 +764,10 @@
             const stableFallbackImg = "product_fallback.jpg";
             if (!bestMatch) {
                 bestMatch = {
-                    name: "Combo Phục Hồi & Căng Bóng Da", advice: "Giải pháp toàn diện giúp da bạn sáng khỏe.",
-                    link: "https://www.tiktok.com/@cuongvqart", image: stableFallbackImg,
+                    name: "Bộ Kit Phục Hồi Chuyên Sâu",
+                    advice: "Giải pháp toàn diện được thiết kế riêng cho bạn.",
+                    link: "https://www.tiktok.com/@cuongvqart",
+                    image: stableFallbackImg,
                     original_link: "https://www.tiktok.com/@cuongvqart"
                 };
             }
@@ -767,8 +781,8 @@
                     <img src="${displayImg}" class="rec-img" onerror="this.onerror=null; this.src='product_fallback.jpg';">
                     <div class="rec-title">${bestMatch.name}</div>
                     <div class="rec-desc">
-                        <span>💡 AI Phân tích:</span> <b>${skinIssue}</b><br>
-                        <i>"${bestMatch.advice || 'Sản phẩm này cực hợp để cải thiện tình trạng da hiện tại của bạn.'}"</i>
+                        <span>💡 Chuyên gia nhận định:</span> <b>${skinIssue}</b><br>
+                        <i>"${bestMatch.advice || randomHook}"</i>
                     </div>
                     <a href="${cleanLink}" target="_blank" class="buy-btn">👉 BẤM ĐỂ NHẬN ƯU ĐÃI NGAY</a>
                 </div>
